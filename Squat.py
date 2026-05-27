@@ -12,6 +12,10 @@ pose = mp_pose.Pose(
 mp_draw = mp.solutions.drawing_utils
 
 cap = cv2.VideoCapture(0)
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+cv2.namedWindow('Workout', cv2.WINDOW_NORMAL)
+cv2.resizeWindow('Workout', 1280, 720)
 
 def calculate_angle(a, b, c):
 
@@ -116,7 +120,8 @@ while True:
         2
     )
 
-    cv2.imshow("Squat Counter", frame)
+    frame = cv2.resize(frame, (1280, 720))
+    cv2.imshow("Workout", frame)
 
     if cv2.waitKey(1) & 0xFF == ord("q"):
         break
