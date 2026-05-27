@@ -1,4 +1,4 @@
-import cv2
+import cv2 
 import mediapipe as mp
 import numpy as np
 
@@ -9,6 +9,7 @@ mp_draw = mp.solutions.drawing_utils
 
 cap = cv2.VideoCapture(0)
 
+# Function to calculate elbow angle 
 def calculate_angle(a, b, c):
     a = np.array(a)
     b = np.array(b)
