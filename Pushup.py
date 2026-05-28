@@ -71,7 +71,6 @@ while True:
         ankle_vis = landmarks[27].visibility
 
         # LEFT ARM LANDMARKS
-
         shoulder = [
             landmarks[11].x,
             landmarks[11].y
@@ -92,15 +91,16 @@ while True:
         ]
 
         # CALCULATE ELBOW ANGLE
-
-        if (shoulder_vis > 0.7 and 
-        elbow_vis > 0.7 and 
-        wrist_vis > 0.7 and 
-        shoulder_y > 0.6 and
-        hip_vis > 0.7 and
-        knee_vis > 0.7 and
-        ankle_vis > 0.7 and
-        body_horizontal):
+        if (
+            shoulder_vis > 0.7 and 
+            elbow_vis > 0.7 and 
+            wrist_vis > 0.7 and 
+            shoulder_y > 0.6 and
+            hip_vis > 0.7 and
+            knee_vis > 0.7 and
+            ankle_vis > 0.7 and
+            body_horizontal
+        ):
             
             angle = calculate_angle(
                 shoulder,
@@ -109,11 +109,10 @@ while True:
             )
 
             # DISPLAY ANGLE
-
             cv2.putText(
                 frame,
-                str(int(angle)),
-                tuple(np.multiply(elbow, [640, 480]).astype(int)),
+                f"Angle: {int(angle)}",
+                (50, 100),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 0.5,
                 (255, 255, 255),
@@ -121,16 +120,16 @@ while True:
             )
 
             # PUSHUP LOGIC
-
-            if angle > 160:
+            if angle > 105:
                 stage = "up"
 
-            if angle < 90 and stage == "up":
+            elif angle < 85 and stage == "up":
                 stage = "down"
                 counter += 1
 
-    # DISPLAY PUSHUP COUNT
+            print(angle, stage, counter)
 
+    # DISPLAY PUSHUP COUNT
     cv2.putText(
         frame,
         f"Pushups: {counter}",
