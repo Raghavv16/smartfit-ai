@@ -7,42 +7,70 @@ st.set_page_config(
     page_icon = "🏋️",
     layout = "wide",
 )
+
 st.title("🏋️ SmartFit AI")
-st.subheader("🤖 AI Powered Fitness Tracker")
-st.write("Select an exercise and click Start Workout")
-st.sidebar.title("Smartfit AI")
-st.sidebar.write("AI Fitness Tracker")
-st.divider()
+st.caption("Track Bicep Curls, Squats and Pushups using Computer Vision and MediaPipe.")
 
-exercise = st.selectbox(
-    "Choose Exercise",
-    ["Left Bicep Curls", "Squats", "Pushups"]
-)
+st.subheader("Select an exercise below and let AI track your workout repetitions in real time.")
 
-st.write(f"Selected Exercise: {exercise}")
+# SIDEBAR
+st.sidebar.title("🏋️ SmartFit AI")
+st.sidebar.markdown("---")
+st.sidebar.subheader("Supported Exercises")
+st.sidebar.write("💪 Left Bicep Curls")
+st.sidebar.write("🦵 Squats")
+st.sidebar.write("🔥 Pushups")
+st.sidebar.markdown("---")
+st.sidebar.info("Press Q anytime to stop the workout")
 
-if exercise == "Left Bicep Curls":
-    st.write("Keep left arm visible.")
-
-elif exercise == "Squats":
-    st.write("Keep full body visible while squatting")
-
-elif exercise == "Pushups":
-    st.write("Perform pushups with left side of your body visible to the camera")
-
-if st.button("Start Workout"):
-
-    st.success(f"{exercise} Started Successfully!")
-    st.warning("Press Q to stop the workout")
+# CONTAINERIZED HERO SECTION
+with st.container():
+    exercise = st.selectbox(
+        "Choose Exercise",
+        ["Left Bicep Curls", "Squats", "Pushups"]
+    )
 
     if exercise == "Left Bicep Curls":
-        os.system(f'"{sys.executable}" LeftBicepCurl.py')
+        st.info(
+            "Keep your left arm clearly visible to the camera and perform controlled curls."
+        )
 
     elif exercise == "Squats":
-        os.system(f'"{sys.executable}" Squat.py')
+        st.info(
+            "Keep your full body visible and face sideways or slightly angled for best squat tracking."
+        )
 
     elif exercise == "Pushups":
-        os.system(f'"{sys.executable}" Pushup.py')
+        st.info(
+            "Keep the left side of your body visible while performing pushups."
+        )
+
+    if st.button("🚀 Start Workout"):
+
+        st.success(f"{exercise} Started Successfully!")
+        st.warning("Press Q to stop the workout")
+
+        if exercise == "Left Bicep Curls":
+            os.system(f'"{sys.executable}" LeftBicepCurl.py')
+
+        elif exercise == "Squats":
+            os.system(f'"{sys.executable}" Squat.py')
+
+        elif exercise == "Pushups":
+            os.system(f'"{sys.executable}" Pushup.py')
+
+with st.expander("ℹ️ About SmartFit AI"):
+    st.write(
+        """
+        SmartFit AI uses OpenCV and MediaPipe Pose Detection
+        to track exercise movements and count repetitions
+        in real time using your webcam.
+        """
+    )
 
 st.markdown("---")
-st.write("Built using Streamlit, OpenCV and MediaPipe")
+
+st.caption(
+    "Built with ❤️ using Streamlit • OpenCV • MediaPipe"
+)
+
