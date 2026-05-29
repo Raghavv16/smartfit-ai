@@ -95,7 +95,6 @@ while True:
             shoulder_vis > 0.7 and 
             elbow_vis > 0.7 and 
             wrist_vis > 0.7 and 
-            shoulder_y > 0.6 and
             hip_vis > 0.7 and
             knee_vis > 0.7 and
             ankle_vis > 0.7 and
@@ -126,8 +125,6 @@ while True:
             elif angle < 85 and stage == "up":
                 stage = "down"
                 counter += 1
-
-            print(angle, stage, counter)
 
     # DISPLAY PUSHUP COUNT
     cv2.putText(
