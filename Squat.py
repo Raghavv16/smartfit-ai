@@ -40,6 +40,7 @@ def calculate_angle(a, b, c):
 
 counter = 0
 stage = None
+min_angle = 180
 
 while True:
 
@@ -62,7 +63,16 @@ while True:
 
         landmarks = results.pose_landmarks.landmark
 
-        # LEFT LEG LANDMARKS
+        # STORE VISIBILITY OF LANDMARKS
+        hip_vis = landmarks[23].visibility
+        knee_vis = landmarks[25].visibility
+        ankle_vis = landmarks[27].visibility
+
+        # LANDMARKS
+        shoulder = [
+            landmarks[11].x,
+            landmarks[11].y
+        ]
 
         hip = [
             landmarks[23].x,
@@ -80,33 +90,45 @@ while True:
         ]
 
         # CALCULATE KNEE ANGLE
+        if (
+            hip_vis > 0.7 and
+            knee_vis > 0.7 and
+            ankle_vis > 0.7
+        ):
+            knee_angle = calculate_angle(
+                hip,
+                knee,
+                ankle
+            )
 
-        angle = calculate_angle(
-            hip,
-            knee,
-            ankle
-        )
+            hip_angle = calculate_angle(
+                shoulder,
+                hip,
+                knee
+            )
 
-        # SHOW ANGLE
+            min_angle = min(min_angle, knee_angle)
 
-        cv2.putText(
-            frame,
-            str(int(angle)),
-            tuple(np.multiply(knee, [640, 480]).astype(int)),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.5,
-            (255, 255, 255),
-            2
-        )
+            # SHOW ANGLE
+            cv2.putText(
+                frame,
+                f"K:{int(knee_angle)} H:{int(hip_angle)}",
+                tuple(np.multiply(knee, [640, 480]).astype(int)),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.5,
+                (255, 255, 255),
+                2
+            )
 
-        # SQUAT LOGIC
+            # SQUAT LOGIC
+            if knee_angle > 165:
+                stage = "up"
 
-        if angle > 160:
-            stage = "up"
-
-        if angle < 90 and stage == "up":
-            stage = "down"
-            counter += 1
+            elif knee_angle < 85 and hip_angle < 110 and stage == "up":
+                if min_angle < 85:
+                    stage = "down"
+                    counter += 1
+                min_angle = 180
 
     # SHOW REPS
 

@@ -62,7 +62,7 @@ while True:
 
         landmarks = results.pose_landmarks.landmark
 
-        # CHECK VISIBILITY OF LANDMARKS
+        # STORE VISIBILITY OF LANDMARKS
         shoulder_vis = landmarks[11].visibility
         elbow_vis = landmarks[13].visibility
         wrist_vis = landmarks[15].visibility
