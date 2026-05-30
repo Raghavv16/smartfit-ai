@@ -14,6 +14,10 @@ pose = mp_pose.Pose(
 mp_draw = mp.solutions.drawing_utils
 
 cap = cv2.VideoCapture(0)
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+cv2.namedWindow('Workout', cv2.WINDOW_NORMAL)
+cv2.resizeWindow('Workout', 1280, 720)
 
 def calculate_angle(a, b, c):
 
@@ -62,12 +66,23 @@ while True:
 
         landmarks = results.pose_landmarks.landmark
 
-        # LEFT ARM LANDMARKS
+        # STORE VISIBILITY OF LANDMARKS
+        shoulder_vis = landmarks[11].visibility
+        elbow_vis = landmarks[13].visibility
+        wrist_vis = landmarks[15].visibility
+        hip_vis = landmarks[23].visibility
+        knee_vis = landmarks[25].visibility
+        ankle_vis = landmarks[27].visibility
 
+        # LEFT ARM LANDMARKS
         shoulder = [
             landmarks[11].x,
             landmarks[11].y
         ]
+
+        shoulder_y = landmarks[11].y
+        hip_y = landmarks[23].y
+        body_horizontal = abs(shoulder_y - hip_y) < 0.15
 
         elbow = [
             landmarks[13].x,
@@ -80,36 +95,42 @@ while True:
         ]
 
         # CALCULATE ELBOW ANGLE
+        if (
+            shoulder_vis > 0.7 and 
+            elbow_vis > 0.7 and 
+            wrist_vis > 0.7 and 
+            hip_vis > 0.7 and
+            knee_vis > 0.7 and
+            ankle_vis > 0.7 and
+            body_horizontal
+        ):
+            
+            angle = calculate_angle(
+                shoulder,
+                elbow,
+                wrist
+            )
 
-        angle = calculate_angle(
-            shoulder,
-            elbow,
-            wrist
-        )
+            # DISPLAY ANGLE
+            cv2.putText(
+                frame,
+                f"Angle: {int(angle)}",
+                (50, 100),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.5,
+                (255, 255, 255),
+                2
+            )
 
-        # DISPLAY ANGLE
+            # PUSHUP LOGIC
+            if angle > 105:
+                stage = "up"
 
-        cv2.putText(
-            frame,
-            str(int(angle)),
-            tuple(np.multiply(elbow, [640, 480]).astype(int)),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.5,
-            (255, 255, 255),
-            2
-        )
-
-        # PUSHUP LOGIC
-
-        if angle > 160:
-            stage = "up"
-
-        if angle < 90 and stage == "up":
-            stage = "down"
-            counter += 1
+            elif angle < 85 and stage == "up":
+                stage = "down"
+                counter += 1
 
     # DISPLAY PUSHUP COUNT
-
     cv2.putText(
         frame,
         f"Pushups: {counter}",
@@ -120,7 +141,8 @@ while True:
         2
     )
 
-    cv2.imshow("Pushup Counter", frame)
+    frame = cv2.resize(frame, (1280, 720))
+    cv2.imshow("Workout", frame)
 
     if cv2.waitKey(1) & 0xFF == ord("q"):
         break
