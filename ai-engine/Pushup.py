@@ -1,6 +1,8 @@
 import cv2
 import mediapipe as mp
 import numpy as np
+import requests
+import time
 
 mp_pose = mp.solutions.pose
 
@@ -37,6 +39,8 @@ def calculate_angle(a, b, c):
 counter = 0
 stage = None
 
+start_time = time.time()
+
 while True:
 
     success, frame = cap.read()
@@ -58,44 +62,44 @@ while True:
 
         landmarks = results.pose_landmarks.landmark
 
-        # LEFT LEG LANDMARKS
+        # LEFT ARM LANDMARKS
 
-        hip = [
-            landmarks[23].x,
-            landmarks[23].y
+        shoulder = [
+            landmarks[11].x,
+            landmarks[11].y
         ]
 
-        knee = [
-            landmarks[25].x,
-            landmarks[25].y
+        elbow = [
+            landmarks[13].x,
+            landmarks[13].y
         ]
 
-        ankle = [
-            landmarks[27].x,
-            landmarks[27].y
+        wrist = [
+            landmarks[15].x,
+            landmarks[15].y
         ]
 
-        # CALCULATE KNEE ANGLE
+        # CALCULATE ELBOW ANGLE
 
         angle = calculate_angle(
-            hip,
-            knee,
-            ankle
+            shoulder,
+            elbow,
+            wrist
         )
 
-        # SHOW ANGLE
+        # DISPLAY ANGLE
 
         cv2.putText(
             frame,
             str(int(angle)),
-            tuple(np.multiply(knee, [640, 480]).astype(int)),
+            tuple(np.multiply(elbow, [640, 480]).astype(int)),
             cv2.FONT_HERSHEY_SIMPLEX,
             0.5,
             (255, 255, 255),
             2
         )
 
-        # SQUAT LOGIC
+        # PUSHUP LOGIC
 
         if angle > 160:
             stage = "up"
@@ -104,11 +108,11 @@ while True:
             stage = "down"
             counter += 1
 
-    # SHOW REPS
+    # DISPLAY PUSHUP COUNT
 
     cv2.putText(
         frame,
-        f"Squats: {counter}",
+        f"Pushups: {counter}",
         (50, 50),
         cv2.FONT_HERSHEY_SIMPLEX,
         1,
@@ -116,10 +120,25 @@ while True:
         2
     )
 
-    cv2.imshow("Squat Counter", frame)
+    cv2.imshow("Pushup Counter", frame)
 
     if cv2.waitKey(1) & 0xFF == ord("q"):
         break
 
 cap.release()
 cv2.destroyAllWindows()
+
+duration = int(time.time() - start_time)
+
+data = {
+    "exercise": "Pushup",
+    "reps": counter,
+    "duration": duration
+}
+
+requests.post(
+    "http://127.0.0.1:8000/save-workout",
+    json=data
+)
+
+print("Workout Saved")

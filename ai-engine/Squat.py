@@ -1,6 +1,8 @@
 import cv2
 import mediapipe as mp
 import numpy as np
+import requests
+import time
 
 mp_pose = mp.solutions.pose
 
@@ -58,44 +60,44 @@ while True:
 
         landmarks = results.pose_landmarks.landmark
 
-        # LEFT ARM LANDMARKS
+        # LEFT LEG LANDMARKS
 
-        shoulder = [
-            landmarks[11].x,
-            landmarks[11].y
+        hip = [
+            landmarks[23].x,
+            landmarks[23].y
         ]
 
-        elbow = [
-            landmarks[13].x,
-            landmarks[13].y
+        knee = [
+            landmarks[25].x,
+            landmarks[25].y
         ]
 
-        wrist = [
-            landmarks[15].x,
-            landmarks[15].y
+        ankle = [
+            landmarks[27].x,
+            landmarks[27].y
         ]
 
-        # CALCULATE ELBOW ANGLE
+        # CALCULATE KNEE ANGLE
 
         angle = calculate_angle(
-            shoulder,
-            elbow,
-            wrist
+            hip,
+            knee,
+            ankle
         )
 
-        # DISPLAY ANGLE
+        # SHOW ANGLE
 
         cv2.putText(
             frame,
             str(int(angle)),
-            tuple(np.multiply(elbow, [640, 480]).astype(int)),
+            tuple(np.multiply(knee, [640, 480]).astype(int)),
             cv2.FONT_HERSHEY_SIMPLEX,
             0.5,
             (255, 255, 255),
             2
         )
 
-        # PUSHUP LOGIC
+        # SQUAT LOGIC
 
         if angle > 160:
             stage = "up"
@@ -104,11 +106,11 @@ while True:
             stage = "down"
             counter += 1
 
-    # DISPLAY PUSHUP COUNT
+    # SHOW REPS
 
     cv2.putText(
         frame,
-        f"Pushups: {counter}",
+        f"Squats: {counter}",
         (50, 50),
         cv2.FONT_HERSHEY_SIMPLEX,
         1,
@@ -116,10 +118,25 @@ while True:
         2
     )
 
-    cv2.imshow("Pushup Counter", frame)
+    cv2.imshow("Squat Counter", frame)
 
     if cv2.waitKey(1) & 0xFF == ord("q"):
         break
 
 cap.release()
 cv2.destroyAllWindows()
+
+duration = int(time.time() - start_time)
+
+data = {
+    "exercise": "Squat",
+    "reps": counter,
+    "duration": duration
+}
+
+requests.post(
+    "http://127.0.0.1:8000/save-workout",
+    json=data
+)
+
+print("Workout Saved")

@@ -1,6 +1,8 @@
 import cv2 
 import mediapipe as mp
 import numpy as np
+import requests
+import time
 
 mp_pose = mp.solutions.pose
 pose = mp_pose.Pose()
@@ -25,6 +27,8 @@ def calculate_angle(a, b, c):
 
 counter = 0
 stage = None
+
+start_time = time.time()
 while True:
     success, frame = cap.read()
     
@@ -61,3 +65,18 @@ while True:
 
 cap.release()
 cv2.destroyAllWindows()
+
+duration = int(time.time() - start_time)
+
+data = {
+    "exercise": "Bicep",
+    "reps": counter,
+    "duration": duration
+}
+
+requests.post(
+    "http://127.0.0.1:8000/save-workout",
+    json=data
+)
+
+print("Workout Saved")
