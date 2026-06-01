@@ -78,6 +78,19 @@ def start_pushup():
         "status": "started"
     }
 
+@app.get("/plank")
+def start_plank():
+
+    subprocess.run([
+        sys.executable,
+        "../ai-engine/Plank.py"
+    ])
+
+    return {
+        "exercise": "Plank",
+        "status": "started"
+    }
+
 
 # -------------------------------
 # DATABASE ROUTES

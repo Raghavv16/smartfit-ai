@@ -8,7 +8,8 @@ exercise = st.selectbox(
     [
         "Left Bicep Curl",
         "Squat",
-        "Pushup"
+        "Pushup",
+        "Plank"
     ]
 )
 
@@ -34,6 +35,14 @@ if st.button("Start Workout"):
 
         response = requests.get(
             "http://127.0.0.1:8000/pushup"
+        )
+
+        st.json(response.json())
+
+    elif exercise == "Plank":
+
+        response = requests.get(
+            "http://127.0.0.1:8000/plank"
         )
 
         st.json(response.json())
