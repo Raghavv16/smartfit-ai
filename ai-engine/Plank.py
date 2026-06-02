@@ -81,6 +81,16 @@ while True:
             landmarks[11].y
         ]
 
+        elbow = [
+            landmarks[13].x,
+            landmarks[13].y
+        ]
+
+        wrist = [
+            landmarks[15].x,
+            landmarks[15].y
+        ]
+
         hip = [
             landmarks[23].x,
             landmarks[23].y
@@ -94,8 +104,14 @@ while True:
         shoulder_y = landmarks[11].y
         hip_y = landmarks[23].y
         body_horizontal = abs(shoulder_y - hip_y) < 0.15
-        body_elevated = abs(shoulder_y - hip_y) > 0.03
 
+        hip_above_ground = hip_y < landmarks[27].y - 0.05
+
+        elbow_angle = calculate_angle(
+            shoulder,
+            elbow,
+            wrist
+        )
 
         # CALCULATE ELBOW ANGLE
         if (
@@ -105,8 +121,7 @@ while True:
             hip_vis > 0.7 and
             knee_vis > 0.7 and
             ankle_vis > 0.7 and
-            body_horizontal and
-            body_elevated
+            body_horizontal
         ):
             
             angle = calculate_angle(
@@ -127,7 +142,9 @@ while True:
             )
 
             # PLANK LOGIC
-            if angle > 160:
+            if (angle > 150 and
+                60 <= elbow_angle <= 140 and
+                hip_above_ground):
                 
                 status = "HOLDING"
                 
