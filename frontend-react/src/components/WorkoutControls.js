@@ -10,8 +10,6 @@ function WorkoutControls() {
         `http://127.0.0.1:8000/${exercise}`
       );
 
-      alert(`${exercise} started`);
-
     } catch (error) {
 
       console.log(error);
@@ -40,6 +38,12 @@ function WorkoutControls() {
         onClick={() => startWorkout("bicep")}
       >
         Start Bicep Curl
+      </button>
+
+      <button
+        onClick={() => startWorkout("plank")}
+      >
+        Start Plank
       </button>
 
     </div>

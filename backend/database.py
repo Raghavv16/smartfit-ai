@@ -1,7 +1,13 @@
 from pymongo import MongoClient
+from dotenv import load_dotenv
+import os
 
-client = MongoClient("mongodb://localhost:27017")
+load_dotenv()
 
-db = client["fitness_ai"]
+mongo_uri = os.getenv("MONGO_URI")
+
+client = MongoClient(mongo_uri)
+
+db = client["smartfit"]
 
 workouts_collection = db["workouts"]

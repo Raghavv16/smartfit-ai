@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-
 import Header from "./components/Header";
 import StatsCards from "./components/StatsCards";
 import WorkoutChart from "./components/WorkoutChart";
@@ -37,6 +36,8 @@ function App() {
     getWorkouts();
 
   }, []);
+
+  console.log(workouts);
 
   return (
 
