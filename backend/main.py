@@ -22,6 +22,7 @@ class Workout(BaseModel):
     exercise: str
     reps: int
     duration: int
+    date: str
 
 
 # Home Route

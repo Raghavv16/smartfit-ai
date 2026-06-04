@@ -3,6 +3,7 @@ import mediapipe as mp
 import numpy as np
 import requests
 import time
+from datetime import datetime
 
 mp_pose = mp.solutions.pose
 
@@ -193,7 +194,8 @@ duration = elapsed_time
 data = {
     "exercise": "Plank",
     "reps": elapsed_time,
-    "duration": duration
+    "duration": duration,
+    "date": datetime.now().strftime("%d-%m-%y %H:%M")
 }
 
 requests.post(
