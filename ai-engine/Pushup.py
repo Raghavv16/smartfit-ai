@@ -157,7 +157,7 @@ data = {
     "exercise": "Pushup",
     "reps": counter,
     "duration": duration,
-    "date": datetime.now().strftime("%d-%m-%y %H:%M")
+    "date": datetime.now().isoformat()
 }
 
 requests.post(
