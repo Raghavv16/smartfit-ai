@@ -92,6 +92,19 @@ def start_plank():
         "status": "started"
     }
 
+@app.get("/jumping-jacks")
+def start_jumping_jacks():
+
+    subprocess.run([
+        sys.executable,
+        "../ai-engine/JumpingJacks.py"
+    ])
+
+    return {
+        "exercise": "Jumping Jacks",
+        "status": "started"
+    }
+
 
 # -------------------------------
 # DATABASE ROUTES
