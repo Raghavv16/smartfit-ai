@@ -61,22 +61,46 @@ body{
 }
 
 .header button{
-  background:linear-gradient(
-    135deg,
-    #22c55e,
-    #16a34a
-  );
-
-  color:white;
-  border:none;
-  padding:12px 22px;
-  border-radius:12px;
-  cursor:pointer;
-  font-weight:600;
+   display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background-color:#22c55e;
 }
 
 .header button:hover{
   transform:translateY(-3px);
+}
+.header button svg {
+  font-size: 22px;
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.icon-btn {
+  width: 35px;
+  height: 35px;
+  border: none;
+  border-radius: 10px;
+  background: #ffffff15;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.icon-btn:hover {
+  transform: translateY(-2px);
+  background: #22c55e;
+  color: white;
+}
+
+.logout-btn:hover {
+  background: #ef4444;
 }
 
 /* HERO */
