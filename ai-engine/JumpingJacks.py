@@ -79,8 +79,8 @@ while True:
             # LEGS
             ankle_distance = abs(left_ankle.x - right_ankle.x)
 
-            legs_apart = ankle_distance > 0.3
-            legs_together = ankle_distance < 0.15
+            legs_apart = ankle_distance > 0.15
+            legs_together = ankle_distance < 0.07
 
             # FEEDBACK
             if arms_up and not legs_apart:

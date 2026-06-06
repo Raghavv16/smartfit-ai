@@ -43,6 +43,7 @@ def calculate_angle(a, b, c):
 
 counter = 0
 stage = None
+feedback = "Get Ready"
 
 start_time = time.time()
 
@@ -84,6 +85,9 @@ while True:
         shoulder_y = landmarks[11].y
         hip_y = landmarks[23].y
         body_horizontal = abs(shoulder_y - hip_y) < 0.15
+        
+        if not body_horizontal:
+            feedback = "Keep Body Straight"
 
         elbow = [
             landmarks[13].x,
@@ -112,13 +116,12 @@ while True:
                 wrist
             )
 
-            # DISPLAY ANGLE
             cv2.putText(
                 frame,
                 f"Angle: {int(angle)}",
-                (50, 100),
+                (50, 150),
                 cv2.FONT_HERSHEY_SIMPLEX,
-                0.5,
+                1,
                 (255, 255, 255),
                 2
             )
@@ -126,10 +129,17 @@ while True:
             # PUSHUP LOGIC
             if angle > 105:
                 stage = "up"
+                feedback = "Go Down"
 
-            elif angle < 85 and stage == "up":
-                stage = "down"
-                counter += 1
+            elif angle > 85:
+                feedback = "Lower More"
+
+            elif angle < 85:
+                feedback = "Perfect Pushup"
+
+                if stage == "up":
+                    stage = "down"
+                    counter += 1
 
     # DISPLAY PUSHUP COUNT
     cv2.putText(
@@ -139,6 +149,16 @@ while True:
         cv2.FONT_HERSHEY_SIMPLEX,
         1,
         (0, 255, 0),
+        2
+    )
+
+    cv2.putText(
+        frame,
+        feedback,
+        (50, 100),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        1,
+        (0, 255, 255),
         2
     )
 
