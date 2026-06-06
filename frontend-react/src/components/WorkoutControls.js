@@ -1,25 +1,26 @@
 import axios from "axios";
 
-function WorkoutControls() {
+function WorkoutControls({ refreshWorkouts }) {
 
-  const startWorkout = async (exercise) => {
+ const startWorkout = async (exercise) => {
+  try {
 
-    try {
+    const userId = localStorage.getItem("userId");
 
-      await axios.get(
-        `http://127.0.0.1:8000/${exercise}`
-      );
+console.log("User ID:", userId);
 
-    } catch (error) {
+await axios.get(
+  `http://127.0.0.1:8000/${exercise}/${userId}`
+);
 
-      console.log(error);
+    refreshWorkouts();
 
-      alert("Backend not running");
-    }
-  };
+  } catch (error) {
+    console.log(error);
+  }
+};
 
   return (
-
     <div className="controls">
 
       <button

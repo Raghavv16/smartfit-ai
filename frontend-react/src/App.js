@@ -1,68 +1,23 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
-import Header from "./components/Header";
-import StatsCards from "./components/StatsCards";
-import WorkoutChart from "./components/WorkoutChart";
-import PieAnalytics from "./components/PieAnalytics";
-import ProgressChart from "./components/ProgressChart";
-import WorkoutHistory from "./components/WorkoutHistory";
-import WorkoutControls from "./components/WorkoutControls";
-import Hero from "./components/Hero";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-import "./styles/dashboard.css";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import Dashboard from "./Dashboard";
+import Profile from "./pages/Profile";
 
 function App() {
-
-  const [workouts, setWorkouts] = useState([]);
-  const [darkMode, setDarkMode] = useState(true);
-
-  const getWorkouts = async () => {
-
-    try {
-
-      const response = await axios.get(
-        "http://127.0.0.1:8000/workouts"
-      );
-      setWorkouts(response.data);
-
-    } catch (error) {
-
-      console.log(error);
-    }
-  };
-
-  useEffect(() => {
-
-    getWorkouts();
-
-  }, []);
-
-  console.log(workouts);
-
   return (
-
-    <div className={darkMode ? "dark app" : "light app"}>
-
-      <Header
-        darkMode={darkMode}
-        setDarkMode={setDarkMode}
-      />
-
-      <Hero />
-
-      <WorkoutControls />
-
-      <StatsCards workouts={workouts} />
-      <div className="chart-grid">
-        <WorkoutChart workouts={workouts} />
-        <PieAnalytics workouts={workouts} />
-      </div>
-
-      <ProgressChart workouts={workouts} />
-
-      <WorkoutHistory workouts={workouts} />
-
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route
+          path="/profile"
+          element={<Profile />}
+        />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

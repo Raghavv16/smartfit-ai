@@ -1,9 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from database import workouts_collection
+from database import workouts_collection, users_collection
 import subprocess
 import sys
+
+from bson import ObjectId
 
 app = FastAPI()
 
@@ -18,13 +20,25 @@ app.add_middleware(
 
 # Workout Model
 class Workout(BaseModel):
-
+    userId: str
     exercise: str
     reps: int
     duration: int
     date: str
 
 
+#User Model 
+class User(BaseModel):
+    name: str
+    email: str
+    password: str
+    age: int
+    height: float
+    weight: float
+    goal: str
+
+
+    
 # Home Route
 @app.get("/")
 def home():
@@ -38,12 +52,13 @@ def home():
 # AI EXERCISE ROUTES
 # -------------------------------
 
-@app.get("/bicep")
-def start_bicep():
+@app.get("/bicep/{user_id}")
+def start_bicep(user_id: str):
 
     subprocess.run([
         sys.executable,
-        "../ai-engine/LeftBicepCurl.py"
+        "../ai-engine/LeftBicepCurl.py",
+        user_id
     ])
 
     return {
@@ -52,12 +67,13 @@ def start_bicep():
     }
 
 
-@app.get("/squat")
-def start_squat():
+@app.get("/squat/{user_id}")
+def start_squat(user_id:str):
 
     subprocess.run([
         sys.executable,
-        "../ai-engine/Squat.py"
+        "../ai-engine/Squat.py",
+        user_id
     ])
 
     return {
@@ -66,25 +82,26 @@ def start_squat():
     }
 
 
-@app.get("/pushup")
-def start_pushup():
+@app.get("/pushup/{user_id}")
+def start_pushup(user_id: str):
 
     subprocess.run([
         sys.executable,
-        "../ai-engine/Pushup.py"
+        "../ai-engine/Pushup.py",
+        user_id
     ])
 
-    return {
-        "exercise": "Pushup",
-        "status": "started"
-    }
+    return {"status": "started"}
 
-@app.get("/plank")
-def start_plank():
+
+
+@app.get("/plank/{user_id}")
+def start_plank(user_id:str):
 
     subprocess.run([
         sys.executable,
-        "../ai-engine/Plank.py"
+        "../ai-engine/Plank.py",
+        user_id
     ])
 
     return {
@@ -92,12 +109,15 @@ def start_plank():
         "status": "started"
     }
 
-@app.get("/jumping-jacks")
-def start_jumping_jacks():
+
+
+@app.get("/jumping-jacks/{user_id}")
+def start_jumping_jacks(user_id:str):
 
     subprocess.run([
         sys.executable,
-        "../ai-engine/JumpingJacks.py"
+        "../ai-engine/JumpingJacks.py",
+        user_id
     ])
 
     return {
@@ -122,15 +142,102 @@ def save_workout(workout: Workout):
     }
 
 
-@app.get("/workouts")
-def get_workouts():
+@app.get("/workouts/{user_id}")
+def get_workouts(user_id: str):
 
     workouts = []
 
-    for workout in workouts_collection.find():
-
+    for workout in workouts_collection.find(
+        {"userId": user_id}
+    ):
         workout["_id"] = str(workout["_id"])
-
         workouts.append(workout)
 
     return workouts
+
+
+# -------------------------------
+# SIGN UP ROUTES
+# -------------------------------
+
+@app.post("/signup")
+def signup(user: User):
+
+    users_collection.insert_one({
+        "name": user.name,
+        "email": user.email,
+        "password": user.password,
+        "age": user.age,
+        "height": user.height,
+        "weight": user.weight,
+        "goal": user.goal
+    })
+
+    return {
+        "message": "Signup Successful"
+    }
+
+
+# -------------------------------
+# LOGIN ROUTES
+# -------------------------------
+
+class Login(BaseModel):
+    email: str
+    password: str
+
+@app.post("/login")
+def login(data: Login):
+
+    user = users_collection.find_one({
+        "email": data.email,
+        "password": data.password
+    })
+
+    if not user:
+        return {"message": "Invalid Credentials"}
+
+    return {
+        "message": "Login Successful",
+        "userId": str(user["_id"])
+    }
+
+
+# -------------------------------
+# Get User Profile
+# -------------------------------
+
+@app.get("/profile/{user_id}")
+def get_profile(user_id: str):
+
+    user = users_collection.find_one(
+        {"_id": ObjectId(user_id)}
+    )
+
+    if not user:
+        return {"message": "User not found"}
+
+    user["_id"] = str(user["_id"])
+
+    return user
+
+
+# -------------------------------
+# Update Profile
+# -------------------------------
+
+
+@app.put("/profile/{user_id}")
+def update_profile(
+    user_id: str,
+    profile: dict
+):
+
+    users_collection.update_one(
+        {"_id": ObjectId(user_id)},
+        {"$set": profile}
+    )
+
+    return {
+        "message": "Profile Updated"
+    }
