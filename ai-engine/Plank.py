@@ -3,9 +3,9 @@ import mediapipe as mp
 import numpy as np
 import requests
 import time
-<<<<<<< HEAD
 import sys
 import os
+from datetime import datetime
 
 sys.path.append(
     os.path.abspath("../backend")
@@ -14,9 +14,6 @@ sys.path.append(
 from database import workouts_collection
 
 user_id = sys.argv[1]
-=======
-from datetime import datetime
->>>>>>> fe5f0cdf879ee106164b920f8c2366f6363f750a
 
 mp_pose = mp.solutions.pose
 
