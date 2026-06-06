@@ -47,6 +47,12 @@ await axios.get(
         Start Plank
       </button>
 
+      <button
+        onClick={() => startWorkout("jumping-jacks")}
+      >
+        Start Jumping Jacks
+      </button>
+
     </div>
   );
 }

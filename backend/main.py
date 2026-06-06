@@ -24,6 +24,7 @@ class Workout(BaseModel):
     exercise: str
     reps: int
     duration: int
+    date: str
 
 
 #User Model 
@@ -105,6 +106,19 @@ def start_plank(user_id:str):
 
     return {
         "exercise": "Plank",
+        "status": "started"
+    }
+
+@app.get("/jumping-jacks")
+def start_jumping_jacks():
+
+    subprocess.run([
+        sys.executable,
+        "../ai-engine/JumpingJacks.py"
+    ])
+
+    return {
+        "exercise": "Jumping Jacks",
         "status": "started"
     }
 

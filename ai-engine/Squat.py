@@ -3,8 +3,12 @@ import mediapipe as mp
 import numpy as np
 import requests
 import time
+<<<<<<< HEAD
 import sys
 import os
+=======
+from datetime import datetime
+>>>>>>> fe5f0cdf879ee106164b920f8c2366f6363f750a
 
 sys.path.append(
     os.path.abspath("../backend")
@@ -52,6 +56,8 @@ def calculate_angle(a, b, c):
 counter = 0
 stage = None
 min_angle = 180
+feedback = "Stand Straight"
+start_time = time.time()
 
 while True:
 
@@ -134,12 +140,20 @@ while True:
             # SQUAT LOGIC
             if knee_angle > 165:
                 stage = "up"
+                feedback = "Go Down"
 
-            elif knee_angle < 85 and hip_angle < 110 and stage == "up":
-                if min_angle < 85:
-                    stage = "down"
-                    counter += 1
-                min_angle = 180
+            elif knee_angle > 100:
+                feedback = "Lower More"
+
+            elif knee_angle < 85 and hip_angle < 110:
+                feedback = "Perfect Squat"
+                
+                if stage == "up":
+                    if min_angle < 85:
+                        stage = "down"
+                        counter += 1
+                    
+                    min_angle = 180
 
     # SHOW REPS
 
@@ -150,6 +164,16 @@ while True:
         cv2.FONT_HERSHEY_SIMPLEX,
         1,
         (0, 255, 0),
+        2
+    )
+
+    cv2.putText(
+        frame,
+        feedback,
+        (50, 100),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        1,
+        (0, 255, 255),
         2
     )
 
@@ -167,7 +191,8 @@ duration = int(time.time() - start_time)
 data = {
     "exercise": "Squat",
     "reps": counter,
-    "duration": duration
+    "duration": duration,
+    "date": datetime.now().isoformat()
 }
 
 requests.post(

@@ -3,8 +3,12 @@ import mediapipe as mp
 import numpy as np
 import requests
 import time
+<<<<<<< HEAD
 import sys
 import os
+=======
+from datetime import datetime
+>>>>>>> fe5f0cdf879ee106164b920f8c2366f6363f750a
 
 sys.path.append(
     os.path.abspath("../backend")
@@ -164,7 +168,8 @@ duration = int(time.time() - start_time)
 data = {
     "exercise": "Pushup",
     "reps": counter,
-    "duration": duration
+    "duration": duration,
+    "date": datetime.now().isoformat()
 }
 
 requests.post(

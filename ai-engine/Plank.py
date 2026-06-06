@@ -3,6 +3,7 @@ import mediapipe as mp
 import numpy as np
 import requests
 import time
+<<<<<<< HEAD
 import sys
 import os
 
@@ -13,6 +14,9 @@ sys.path.append(
 from database import workouts_collection
 
 user_id = sys.argv[1]
+=======
+from datetime import datetime
+>>>>>>> fe5f0cdf879ee106164b920f8c2366f6363f750a
 
 mp_pose = mp.solutions.pose
 
@@ -203,7 +207,8 @@ duration = elapsed_time
 data = {
     "exercise": "Plank",
     "reps": elapsed_time,
-    "duration": duration
+    "duration": duration,
+    "date": datetime.now().isoformat()
 }
 
 requests.post(
