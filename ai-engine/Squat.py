@@ -186,6 +186,7 @@ start_time = time.time()
 duration = int(time.time() - start_time)
 
 data = {
+    "userId": user_id,
     "exercise": "Squat",
     "reps": counter,
     "duration": duration,
@@ -196,15 +197,5 @@ requests.post(
     "http://127.0.0.1:8000/save-workout",
     json=data
 )
-
-print("Workout Saved")
-
-
-workouts_collection.insert_one({
-    "userId": user_id,
-    "exercise": "Squat",
-    "reps": counter,
-    "duration": 0
-})
 
 print("Workout Saved Successfully")

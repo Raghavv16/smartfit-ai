@@ -202,6 +202,7 @@ cv2.destroyAllWindows()
 duration = elapsed_time
 
 data = {
+    "userId": user_id,
     "exercise": "Plank",
     "reps": elapsed_time,
     "duration": duration,
@@ -212,15 +213,5 @@ requests.post(
     "http://127.0.0.1:8000/save-workout",
     json=data
 )
-
-print("Workout Saved")
-
-workouts_collection.insert_one({
-    "userId": user_id,
-    "exercise": "Plank",
-    "reps": 0,
-    "duration": timer
-})
-
 
 print("Workout Saved Successfully")

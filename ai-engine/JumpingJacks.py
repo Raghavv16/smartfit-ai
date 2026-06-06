@@ -152,6 +152,7 @@ cv2.destroyAllWindows()
 duration = int(time.time() - start_time)
 
 data = {
+    "userId": user_id,
     "exercise": "Jumping Jacks",
     "reps": counter,
     "duration": duration,
@@ -163,13 +164,4 @@ requests.post(
     json=data
 )
 
-print("Workout Saved")
-
-
-
-workouts_collection.insert_one({
-    "userId": user_id,
-    "exercise": "Jumping Jacks",
-    "reps": counter,
-    "duration": duration
-})
+print("Workout Saved Successfully")
