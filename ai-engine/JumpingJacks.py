@@ -3,7 +3,19 @@ import mediapipe as mp
 import requests
 import time
 from datetime import datetime
+import sys
+import os
 
+
+sys.path.append(
+    os.path.abspath("../backend")
+)
+
+from database import workouts_collection
+
+user_id = sys.argv[1]
+
+print("User ID:", user_id)
 mp_pose = mp.solutions.pose
 
 pose = mp_pose.Pose(
@@ -152,3 +164,12 @@ requests.post(
 )
 
 print("Workout Saved")
+
+
+
+workouts_collection.insert_one({
+    "userId": user_id,
+    "exercise": "Jumping Jacks",
+    "reps": counter,
+    "duration": duration
+})

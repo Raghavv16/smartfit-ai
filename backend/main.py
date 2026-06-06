@@ -109,12 +109,15 @@ def start_plank(user_id:str):
         "status": "started"
     }
 
-@app.get("/jumping-jacks")
-def start_jumping_jacks():
+
+
+@app.get("/jumping-jacks/{user_id}")
+def start_jumping_jacks(user_id:str):
 
     subprocess.run([
         sys.executable,
-        "../ai-engine/JumpingJacks.py"
+        "../ai-engine/JumpingJacks.py",
+        user_id
     ])
 
     return {
