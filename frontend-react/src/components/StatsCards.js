@@ -12,6 +12,30 @@ function StatsCards({ workouts }) {
 
   const calories = totalReps * 0.5;
 
+  const uniqueDates = [
+    ...new Set(
+      workouts.map(workout => 
+        workout.date?.split("T")[0]
+      )
+    )
+  ].sort().reverse();
+  
+  let streak = 0;
+
+  for (let i = 0; i < uniqueDates.length; i++) {
+    const expectedDate = new Date();
+    
+    expectedDate.setDate(expectedDate.getDate() - i);
+
+    const expectedDateString = expectedDate.toISOString().split("T")[0];
+
+    if (uniqueDates[i] === expectedDateString) {
+      streak++;
+    } else {
+      break;
+    }
+  }
+
   return (
 
     <div className="cards">
@@ -24,6 +48,11 @@ function StatsCards({ workouts }) {
       <div className="card">
         <h3>Total Reps</h3>
         <h1>{totalReps}</h1>
+      </div>
+
+      <div className="card">
+        <h3>Current Streak 🔥</h3>
+        <h1>{streak}</h1>
       </div>
 
       <div className="card">

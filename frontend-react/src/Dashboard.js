@@ -9,6 +9,7 @@ import WorkoutChart from "./components/WorkoutChart";
 import PieAnalytics from "./components/PieAnalytics";
 import ProgressChart from "./components/ProgressChart";
 import WorkoutHistory from "./components/WorkoutHistory";
+import PersonalRecords from "./components/PersonalRecords";
 
 import "./styles/dashboard.css";
 
@@ -82,6 +83,8 @@ function Dashboard() {
 
       <ProgressChart workouts={workouts} />
 
+      <PersonalRecords workouts={workouts} />
+      
       <WorkoutHistory workouts={workouts} />
 
     </div>
