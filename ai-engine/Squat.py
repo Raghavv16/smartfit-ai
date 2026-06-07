@@ -182,7 +182,6 @@ while True:
 
 cap.release()
 cv2.destroyAllWindows()
-start_time = time.time()
 duration = int(time.time() - start_time)
 
 data = {

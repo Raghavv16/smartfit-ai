@@ -261,6 +261,7 @@ body{
 
 .progress-box{
   margin-top:35px;
+  margin-bottom:35px;
 }
 
 /* WORKOUT HISTORY */
@@ -270,7 +271,7 @@ body{
 }
 
 .history h2{
-  margin-bottom:20px;
+  margin-bottom:15px;
 }
 
 .dark .history-card{
@@ -346,4 +347,52 @@ body{
   .hero h1{
     font-size:2.2rem;
   }
+}
+
+/* PERSONAL RECORDS */
+
+.records-grid{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:20px;
+
+  margin-top:20px;
+}
+
+.record-card{
+  background:linear-gradient(
+    135deg,
+    #22c55e,
+    #06b6d4
+  );
+
+  color:white;
+
+  min-width:180px;
+
+  padding:18px;
+
+  border-radius:18px;
+
+  box-shadow:
+    0 10px 20px rgba(0,0,0,.2);
+}
+
+.record-card:hover{
+  transform:translateY(-5px);
+}
+
+.record-card h4{
+  margin-bottom:10px;
+}
+
+.record-card h2{
+  font-size:2rem;
+  margin-bottom:8px;
+}
+
+.record-card p{
+  font-size:.85rem;
+  opacity:.9;
 }

@@ -22,7 +22,7 @@ function Header({ darkMode, setDarkMode }) {
         
         <button
           onClick={() =>
-            window.location.href = "/profile"
+            window.location.href = "/dashboard/profile"
           }
         >
           Profile

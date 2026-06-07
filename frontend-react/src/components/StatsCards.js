@@ -27,7 +27,7 @@ function StatsCards({ workouts }) {
     
     expectedDate.setDate(expectedDate.getDate() - i);
 
-    const expectedDateString = expectedDate.toISOString().split("T")[0];
+    const expectedDateString = expectedDate.toLocaleDateString("en-CA");
 
     if (uniqueDates[i] === expectedDateString) {
       streak++;
