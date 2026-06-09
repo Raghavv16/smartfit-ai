@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from database import workouts_collection, users_collection
 import subprocess
 import sys
+import re
 
 from bson import ObjectId
 
@@ -39,6 +40,20 @@ class User(BaseModel):
 
 
     
+# Backend Validation
+def validate_password(password):
+
+    pattern = (
+        r"^(?=.*[a-z])"
+        r"(?=.*[A-Z])"
+        r"(?=.*\d)"
+        r"(?=.*[@$!%*?&])"
+        r"[A-Za-z\d@$!%*?&]{8,}$"
+    )
+
+    return re.match(pattern, password)
+
+
 # Home Route
 @app.get("/")
 def home():
@@ -172,6 +187,19 @@ def signup(user: User):
         "weight": user.weight,
         "goal": user.goal
     })
+    if not validate_password(user.password):
+        return {
+        "message":
+        "Weak password"
+    }
+
+    email_pattern = r"^[^\s@]+@[^\s@]+\.[^\s@]+$"
+
+    if not re.match(email_pattern,user.email):
+        return {
+        "message":
+        "Invalid email"
+    }
 
     print("Inserted ID:", result.inserted_id)  # DEBUG
 
@@ -212,20 +240,22 @@ def login(data: Login):
 # Get User Profile
 # -------------------------------
 
+
 @app.get("/profile/{user_id}")
 def get_profile(user_id: str):
 
-    user = users_collection.find_one(
-        {"_id": ObjectId(user_id)}
-    )
+    try:
+        user = users_collection.find_one(
+            {"_id": ObjectId(user_id)}
+        )
+    except InvalidId:
+        return {"message": "Invalid user id"}
 
     if not user:
         return {"message": "User not found"}
 
     user["_id"] = str(user["_id"])
-
     return user
-
 
 # -------------------------------
 # Update Profile
@@ -233,16 +263,21 @@ def get_profile(user_id: str):
 
 
 @app.put("/profile/{user_id}")
-def update_profile(
-    user_id: str,
-    profile: dict
-):
+def update_profile(user_id: str, profile: dict):
 
     users_collection.update_one(
         {"_id": ObjectId(user_id)},
-        {"$set": profile}
+        {
+            "$set": {
+                "name": profile["name"],
+                "age": profile["age"],
+                "height": profile["height"],
+                "weight": profile["weight"],
+                "goal": profile["goal"]
+            }
+        }
     )
 
     return {
-        "message": "Profile Updated"
+        "message": "Profile Updated Successfully"
     }
