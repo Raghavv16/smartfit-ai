@@ -14,41 +14,32 @@ import PersonalRecords from "./components/PersonalRecords";
 import "./styles/dashboard.css";
 
 function Dashboard() {
-
   const [workouts, setWorkouts] = useState([]);
   const [darkMode, setDarkMode] = useState(true);
 
   const userId = localStorage.getItem("userId");
 
-  const getWorkouts = async () => {
-
-    try {
-
-      const response = await axios.get(
-        `http://127.0.0.1:8000/workouts/${userId}`
-      );
-
-      setWorkouts(response.data);
-
-    } catch (error) {
-
-      console.log(error);
-    }
-  };
-
+  // ✅ SINGLE CLEAN API CALL
   useEffect(() => {
+    if (!userId) return;
 
-    if (userId) {
-      getWorkouts();
-    }
+    const fetchWorkouts = async () => {
+      try {
+        const response = await axios.get(
+          `http://127.0.0.1:8000/workouts/${userId}`
+        );
 
+        setWorkouts(response.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchWorkouts();
   }, [userId]);
 
-
-
-
+  // ❌ If not logged in
   if (!userId) {
-
     return (
       <div style={{ textAlign: "center", marginTop: "100px" }}>
         <h2>Please Login First</h2>
@@ -57,36 +48,41 @@ function Dashboard() {
   }
 
   return (
-
     <div className={darkMode ? "dark app" : "light app"}>
-
-      <Header
-        darkMode={darkMode}
-        setDarkMode={setDarkMode}
-      />
+      <Header darkMode={darkMode} setDarkMode={setDarkMode} />
 
       <Hero />
 
       <WorkoutControls
-        refreshWorkouts={getWorkouts}
+        refreshWorkouts={() => {
+          // optional manual refresh
+          const fetchWorkouts = async () => {
+            try {
+              const response = await axios.get(
+                `http://127.0.0.1:8000/workouts/${userId}`
+              );
+              setWorkouts(response.data);
+            } catch (error) {
+              console.log(error);
+            }
+          };
+
+          fetchWorkouts();
+        }}
       />
 
       <StatsCards workouts={workouts} />
 
       <div className="chart-grid">
-
         <WorkoutChart workouts={workouts} />
-
         <PieAnalytics workouts={workouts} />
-
       </div>
 
       <ProgressChart workouts={workouts} />
 
       <PersonalRecords workouts={workouts} />
-      
-      <WorkoutHistory workouts={workouts} />
 
+      <WorkoutHistory workouts={workouts} />
     </div>
   );
 }

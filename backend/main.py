@@ -163,7 +163,7 @@ def get_workouts(user_id: str):
 @app.post("/signup")
 def signup(user: User):
 
-    users_collection.insert_one({
+    result = users_collection.insert_one({
         "name": user.name,
         "email": user.email,
         "password": user.password,
@@ -173,8 +173,11 @@ def signup(user: User):
         "goal": user.goal
     })
 
+    print("Inserted ID:", result.inserted_id)  # DEBUG
+
     return {
-        "message": "Signup Successful"
+        "message": "Signup Successful",
+        "userId": str(result.inserted_id)
     }
 
 
@@ -190,12 +193,14 @@ class Login(BaseModel):
 def login(data: Login):
 
     user = users_collection.find_one({
-        "email": data.email,
-        "password": data.password
+        "email": data.email
     })
 
     if not user:
-        return {"message": "Invalid Credentials"}
+        return {"message": "User not found"}
+
+    if user["password"] != data.password:
+        return {"message": "Invalid password"}
 
     return {
         "message": "Login Successful",

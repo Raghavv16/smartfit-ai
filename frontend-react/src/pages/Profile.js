@@ -9,18 +9,20 @@ function Profile() {
   const userId =
     localStorage.getItem("userId");
 
- useEffect(() => {
+useEffect(() => {
 
-  axios.get(
-    `http://127.0.0.1:8000/profile/${userId}`
-  )
-  .then(res => {
-    console.log(res.data);
-    setUser(res.data);
-  })
-  .catch(err => console.log(err));
+  if (!userId) return;
 
-}, []);
+  axios
+    .get(`http://127.0.0.1:8000/profile/${userId}`)
+    .then(res => {
+      console.log(res.data);
+      setUser(res.data);
+    })
+    .catch(err => console.log(err));
+
+}, [userId]);
+
 
   return (
 
