@@ -1,7 +1,22 @@
-import { LogOut, Moon, Sun } from "lucide-react";
-// import { useState } from "react";
+import { LogOut, Moon, Sun, User } from "lucide-react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 function Header({ darkMode, setDarkMode }) {
+  const [user, setUser] = useState({});
+  const [showMenu, setShowMenu] = useState(false);
+
+  const userId = localStorage.getItem("userId");
+
+  useEffect(() => {
+    if (!userId) return;
+
+    axios
+      .get(`http://127.0.0.1:8000/profile/${userId}`)
+      .then(res => setUser(res.data))
+      .catch(err => console.log(err));
+  }, [userId]);
+
   return (
     <div className="header">
       <div>
@@ -10,36 +25,62 @@ function Header({ darkMode, setDarkMode }) {
         <p>Track your workout analytics</p>
       </div>
 
-      <div className="header-actions">
-        <button
-          className="icon-btn"
-          onClick={() => setDarkMode(!darkMode)}
-          title="Toggle Theme"
-        >
-          {darkMode ? <Sun size={20} /> : <Moon size={20} />}
-        </button>
+      {/* <div className="header-actions"> */}
 
-        
-        <button
-          onClick={() =>
-            window.location.href = "/dashboard/profile"
-          }
-        >
-          Profile
-        </button>
+        <div className="profile-wrapper">
 
-        <button
-          className="icon-btn logout-btn"
-          title="Logout"
-          onClick={() => {
-            localStorage.removeItem("userId");
-            window.location.href = "/";
-          }}
-        >
-          <LogOut size={20} />
-        </button>
+          <button
+            className="avatar-btn"
+            onClick={() => setShowMenu(!showMenu)}
+          >
+            {user.name?.charAt(0).toUpperCase()}
+          </button>
+
+          {showMenu && (
+            <div className="profile-menu">
+
+              <h4>{user.name}</h4>
+
+              <button
+                onClick={() =>
+                  window.location.href =
+                    "/dashboard/profile"
+                }
+              >
+                <User size={16} />
+                View Profile
+              </button>
+
+              <button
+                onClick={() => setDarkMode(!darkMode)}
+              >
+                {darkMode ? (
+                  <>
+                    <Sun size={16} />
+                    Light Mode
+                  </>
+                ) : (
+                  <>
+                    <Moon size={16} />
+                    Dark Mode
+                  </>
+                )}
+              </button>
+
+              <button
+                onClick={() => {
+                  localStorage.removeItem("userId");
+                  window.location.href = "/";
+                }}
+              >
+                <LogOut size={16} />
+                Logout
+              </button>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    // </div>
   );
 }
 
