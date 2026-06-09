@@ -17,6 +17,39 @@ function Signup() {
 
   const handleSignup = async () => {
 
+
+    const emailRegex =
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+    if (!emailRegex.test(email)) {
+      alert("Please enter a valid email address");
+      return;
+    }
+
+    if (!passwordRegex.test(password)) {
+      alert(
+        "Password must contain:\n" +
+        "• At least 8 characters\n" +
+        "• One uppercase letter\n" +
+        "• One lowercase letter\n" +
+        "• One number\n" +
+        "• One special character"
+      );
+      return
+    }
+
+    if (name.length < 3) {
+      alert("Name must be at least 3 characters");
+      return;
+    }
+
+    if (password.includes(" ")) {
+      alert("Password cannot contain spaces");
+      return;
+    }
     try {
 
       await axios.post(

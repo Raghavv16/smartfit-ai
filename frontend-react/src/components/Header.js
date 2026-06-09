@@ -15,27 +15,31 @@ function Header({ darkMode, setDarkMode }) {
       .get(`http://127.0.0.1:8000/profile/${userId}`)
       .then(res => setUser(res.data))
       .catch(err => console.log(err));
+
   }, [userId]);
 
   return (
     <div className="header">
-      <div>
 
+      <div>
         <h1>AI Fitness Dashboard</h1>
         <p>Track your workout analytics</p>
       </div>
 
-      {/* <div className="header-actions"> */}
+      {/* RIGHT SIDE */}
+      <div className="header-actions">
 
+        {/* AVATAR BUTTON */}
         <div className="profile-wrapper">
 
           <button
             className="avatar-btn"
             onClick={() => setShowMenu(!showMenu)}
           >
-            {user.name?.charAt(0).toUpperCase()}
+            {user.name?.charAt(0).toUpperCase() || "U"}
           </button>
 
+          {/* DROPDOWN MENU */}
           {showMenu && (
             <div className="profile-menu">
 
@@ -43,8 +47,7 @@ function Header({ darkMode, setDarkMode }) {
 
               <button
                 onClick={() =>
-                  window.location.href =
-                    "/dashboard/profile"
+                  window.location.href = "/profile"
                 }
               >
                 <User size={16} />
@@ -76,11 +79,15 @@ function Header({ darkMode, setDarkMode }) {
                 <LogOut size={16} />
                 Logout
               </button>
+
             </div>
           )}
+
         </div>
+
       </div>
-    // </div>
+
+    </div>
   );
 }
 
