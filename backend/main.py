@@ -220,20 +220,23 @@ class Login(BaseModel):
 @app.post("/login")
 def login(data: Login):
 
-    user = users_collection.find_one({
-        "email": data.email
-    })
+    try:
+        user = users_collection.find_one({"email": data.email})
 
-    if not user:
-        return {"message": "User not found"}
+        if not user:
+            return {"message": "User not found", "userId": None}
 
-    if user["password"] != data.password:
-        return {"message": "Invalid password"}
+        if user.get("password") != data.password:
+            return {"message": "Invalid password", "userId": None}
 
-    return {
-        "message": "Login Successful",
-        "userId": str(user["_id"])
-    }
+        return {
+            "message": "Login Successful",
+            "userId": str(user["_id"])
+        }
+
+    except Exception as e:
+        print("LOGIN ERROR:", e)
+        return {"message": "Server error", "userId": None}
 
 
 # -------------------------------

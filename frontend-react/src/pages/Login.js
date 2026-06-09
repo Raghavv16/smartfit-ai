@@ -9,29 +9,27 @@ function Login() {
   const [password, setPassword] = useState("");
 
   const handleLogin = async () => {
+  try {
+    const response = await axios.post(
+      "http://127.0.0.1:8000/login",
+      { email, password }
+    );
 
-    try {
+    console.log(response.data);
 
-      const response = await axios.post(
-        "http://127.0.0.1:8000/login",
-        {
-          email,
-          password
-        }
-      );
-
-      localStorage.setItem(
-        "userId",
-        response.data.userId
-      );
-
-      window.location.href = "/dashboard";
-
-    } catch (error) {
-
-      alert("Invalid Credentials");
+    if (!response.data.userId) {
+      alert(response.data.message || "Login Failed");
+      return;
     }
-  };
+
+    localStorage.setItem("userId", response.data.userId);
+    window.location.href = "/dashboard";
+
+  } catch (error) {
+  console.log("LOGIN ERROR:", error.response?.data || error.message);
+  alert(error.response?.data?.message || "Server Error");
+}
+};
 
   return (
    <div className="auth-container">
