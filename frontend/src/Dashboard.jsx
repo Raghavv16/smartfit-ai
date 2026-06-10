@@ -1,7 +1,6 @@
+import Navbar from "./components/ui/shared/Navbar";
 import { useEffect, useState } from "react";
 import axios from "axios";
-
-import Header from "./components/Header.jsx";
 import Hero from "./components/Hero.jsx";
 import WorkoutControls from "./components/WorkoutControls.jsx";
 import StatsCards from "./components/StatsCards.jsx";
@@ -12,10 +11,11 @@ import WorkoutHistory from "./components/WorkoutHistory.jsx";
 import PersonalRecords from "./components/PersonalRecords.jsx";
 
 import "./styles/dashboard.css";
+import Footer from "./components/ui/shared/Footer";
 
 function Dashboard() {
   const [workouts, setWorkouts] = useState([]);
-  const [darkMode, setDarkMode] = useState(true);
+  const [darkMode, setDarkMode] = useState(false);
 
   const userId = localStorage.getItem("userId");
 
@@ -48,8 +48,9 @@ function Dashboard() {
   }
 
   return (
-    <div className={darkMode ? "dark app" : "light app"}>
-      <Header darkMode={darkMode} setDarkMode={setDarkMode} />
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-green-950 text-white">
+      <Navbar />
+      {/* <Header darkMode={darkMode} setDarkMode={setDarkMode} /> */}
 
       <Hero />
 
@@ -83,6 +84,8 @@ function Dashboard() {
       <PersonalRecords workouts={workouts} />
 
       <WorkoutHistory workouts={workouts} />
+
+      <Footer />
     </div>
   );
 }

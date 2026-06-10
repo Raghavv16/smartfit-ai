@@ -1,60 +1,66 @@
 import axios from "axios";
+import { Button } from "./ui/button";
 
 function WorkoutControls({ refreshWorkouts }) {
 
- const startWorkout = async (exercise) => {
-  try {
+  const startWorkout = async (exercise) => {
+    try {
 
-    const userId = localStorage.getItem("userId");
+      const userId = localStorage.getItem("userId");
 
-console.log("User ID:", userId);
+      console.log("User ID:", userId);
 
-await axios.get(
-  `http://127.0.0.1:8000/${exercise}/${userId}`
-);
+      await axios.get(
+        `http://127.0.0.1:8000/${exercise}/${userId}`
+      );
 
-    refreshWorkouts();
+      refreshWorkouts();
 
-  } catch (error) {
-    console.log(error);
-  }
-};
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
-    <div className="controls">
+  <div className="flex flex-wrap justify-center gap-4 my-8">
 
-      <button
-        onClick={() => startWorkout("pushup")}
-      >
-        Start Pushup
-      </button>
+    <Button
+      onClick={() => startWorkout("pushup")}
+      className="bg-slate-900/70 backdrop-blur-xl border border-slate-700 hover:border-emerald-500 hover:bg-emerald-500/20 text-white rounded-2xl px-6 py-6 transition-all duration-300"
+    >
+      Start Pushup
+    </Button>
 
-      <button
-        onClick={() => startWorkout("squat")}
-      >
-        Start Squat
-      </button>
+    <Button
+      onClick={() => startWorkout("squat")}
+      className="bg-slate-900/70 backdrop-blur-xl border border-slate-700 hover:border-emerald-500 hover:bg-emerald-500/20 text-white rounded-2xl px-6 py-6 transition-all duration-300"
+    >
+      Start Squat
+    </Button>
 
-      <button
-        onClick={() => startWorkout("bicep")}
-      >
-        Start Bicep Curl
-      </button>
+    <Button
+      onClick={() => startWorkout("bicep")}
+      className="bg-slate-900/70 backdrop-blur-xl border border-slate-700 hover:border-emerald-500 hover:bg-emerald-500/20 text-white rounded-2xl px-6 py-6 transition-all duration-300"
+    >
+      Start Bicep Curl
+    </Button>
 
-      <button
-        onClick={() => startWorkout("plank")}
-      >
-        Start Plank
-      </button>
+    <Button
+      onClick={() => startWorkout("plank")}
+      className="bg-slate-900/70 backdrop-blur-xl border border-slate-700 hover:border-emerald-500 hover:bg-emerald-500/20 text-white rounded-2xl px-6 py-6 transition-all duration-300"
+    >
+      Start Plank
+    </Button>
 
-      <button
-        onClick={() => startWorkout("jumping-jacks")}
-      >
-        Start Jumping Jacks
-      </button>
+    <Button
+      onClick={() => startWorkout("jumping-jacks")}
+      className="bg-slate-900/70 backdrop-blur-xl border border-slate-700 hover:border-emerald-500 hover:bg-emerald-500/20 text-white rounded-2xl px-6 py-6 transition-all duration-300"
+    >
+      Start Jumping Jacks
+    </Button>
 
-    </div>
-  );
+  </div>
+);
 }
 
 export default WorkoutControls;
