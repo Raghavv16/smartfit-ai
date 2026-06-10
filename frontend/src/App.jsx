@@ -12,14 +12,14 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/profile" element={<Profile/>}/>
-        <Route
-          path="/dashboard/profile"
-          element={<Profile />}
-        />
+        <Route path="/profile" element={<Profile />} />
       </Routes>
     </BrowserRouter>
   );
 }
 
 export default App;
+
+
+
+

@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-import Header from "./components/Header";
-import Hero from "./components/Hero";
-import WorkoutControls from "./components/WorkoutControls";
-import StatsCards from "./components/StatsCards";
-import WorkoutChart from "./components/WorkoutChart";
-import PieAnalytics from "./components/PieAnalytics";
-import ProgressChart from "./components/ProgressChart";
-import WorkoutHistory from "./components/WorkoutHistory";
-import PersonalRecords from "./components/PersonalRecords";
+import Header from "./components/Header.jsx";
+import Hero from "./components/Hero.jsx";
+import WorkoutControls from "./components/WorkoutControls.jsx";
+import StatsCards from "./components/StatsCards.jsx";
+import WorkoutChart from "./components/WorkoutChart.jsx";
+import PieAnalytics from "./components/PieAnalytics.jsx";
+import ProgressChart from "./components/ProgressChart.jsx";
+import WorkoutHistory from "./components/WorkoutHistory.jsx";
+import PersonalRecords from "./components/PersonalRecords.jsx";
 
 import "./styles/dashboard.css";
 

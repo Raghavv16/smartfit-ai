@@ -1,0 +1,144 @@
+import { useState } from "react";
+import axios from "axios";
+import { Link } from "react-router-dom";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+} from "@/components/ui/card";
+
+import { Dumbbell, Mail, Lock } from "lucide-react";
+
+function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleLogin = async () => {
+    try {
+      const response = await axios.post(
+        "http://127.0.0.1:8000/login",
+        {
+          email,
+          password,
+        }
+      );
+
+      if (!response.data.userId) {
+        alert(response.data.message);
+        return;
+      }
+
+      localStorage.setItem("userId", response.data.userId);
+      window.location.href = "/dashboard";
+    } catch (error) {
+      alert(
+        error.response?.data?.message ||
+        "Login Failed"
+      );
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-green-950 flex items-center justify-center p-6">
+
+      <Card className="w-full max-w-lg border border-slate-700 bg-slate-900/70 backdrop-blur-xl shadow-2xl rounded-3xl">
+
+        <CardContent className="p-10">
+
+          {/* Logo */}
+
+          <div className="flex flex-col items-center mb-8">
+
+            <div className="h-24 w-24 rounded-full bg-emerald-500 flex items-center justify-center shadow-xl shadow-emerald-500/40">
+
+              <Dumbbell size={37} className="text-white" />
+
+            </div>
+
+            <h1 className="text-5xl font-bold text-white mt-6">
+              SmartFit AI
+            </h1>
+
+            <p className="text-slate-400 mt-3 text-center max-w-sm">
+              Track workouts, monitor progress and achieve your fitness goals.
+            </p>
+
+          </div>
+
+          {/* Email */}
+
+          <div className="relative mb-4">
+
+            <Mail
+              size={18}
+              className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400"
+            />
+
+            <Input
+              type="email"
+              placeholder="Enter Email"
+              className="pl-16 h-14 bg-slate-800 border-slate-700 text-white placeholder:text-slate-400" 
+              value={email}
+              onChange={(e) =>
+                setEmail(e.target.value)
+              }
+            />
+
+          </div>
+
+          {/* Password */}
+
+          <div className="relative mb-6">
+
+            <Lock
+              className="absolute left-3 top-3 text-slate-400"
+              size={18}
+            />
+
+            <Input
+              type="password"
+              placeholder="Enter Password"
+              className="pl-10 h-12 bg-slate-800 border-slate-700 text-white"
+              value={password}
+              onChange={(e) =>
+                setPassword(e.target.value)
+              }
+            />
+
+          </div>
+
+          {/* Login Button */}
+
+          <Button
+            onClick={handleLogin}
+             className="w-full h-14 mt-2 text-lg font-semibold bg-emerald-500 hover:bg-emerald-600"
+>
+            Login
+          </Button>
+
+          {/* Footer */}
+
+          <p className="text-center text-slate-400 mt-8">
+
+            Don't have an account?
+
+            <Link
+              to="/signup"
+              className="text-emerald-400 ml-2 hover:text-emerald-300 font-medium"
+            >
+              Sign Up
+            </Link>
+
+          </p>
+
+        </CardContent>
+
+      </Card>
+
+    </div>
+  );
+}
+
+export default Login;
