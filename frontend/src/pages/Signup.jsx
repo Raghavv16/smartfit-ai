@@ -1,19 +1,10 @@
 import { useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import { Eye, EyeOff, Cake } from "lucide-react";
+import { Eye, EyeOff, Cake, User, Mail, Lock, Ruler, Weight, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-
-import {
-  User,
-  Mail,
-  Lock,
-  Ruler,
-  Weight,
-  Target,
-} from "lucide-react";
 
 function Signup() {
   const [name, setName] = useState("");
