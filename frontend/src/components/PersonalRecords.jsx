@@ -14,7 +14,7 @@ function PersonalRecords({ workouts }) {
   });
 
   return (
-    <div className="mt-8">
+    <div className="mx-2 mt-8">
       <h2 className="text-2xl font-bold text-white mb-6">
         Personal Records 🏆
       </h2>

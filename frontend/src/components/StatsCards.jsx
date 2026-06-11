@@ -73,7 +73,7 @@ function StatsCards({ workouts }) {
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-5 my-8">
+    <div className="mx-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-5 my-8">
       {stats.map((stat, index) => (
         <Card
           key={index}

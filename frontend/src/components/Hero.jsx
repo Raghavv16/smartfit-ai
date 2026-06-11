@@ -7,7 +7,7 @@ function Hero() {
         relative overflow-hidden
         rounded-3xl
         border border-emerald-500/20
-        bg-gradient-to-br
+        bg-linear-to-br
         from-emerald-500/20
         via-green-500/10
         to-slate-900/80
@@ -16,6 +16,7 @@ function Hero() {
         shadow-emerald-500/10
         p-8 md:p-10
         mt-4
+        mx-2
       "
     >
       {/* Background Glow */}
