@@ -179,6 +179,33 @@ def get_workouts(user_id: str):
 @app.post("/signup")
 def signup(user: User):
 
+    # Email Validation
+    email_pattern = r"^[^\s@]+@[^\s@]+\.[^\s@]+$"
+
+    if not re.match(email_pattern,user.email):
+        return {
+            "message": "Invalid email"
+    }
+
+    # Check Existing User
+    existing_user = users_collection.find_one(
+        {"email": user.email}
+    )
+
+    print(existing_user)
+
+    if existing_user:
+        return {
+            "message": "Email already registered"
+        }
+    
+    # Password Validation
+    if not validate_password(user.password):
+        return {
+            "message": "Weak password"
+    }
+    
+    # Insert User
     result = users_collection.insert_one({
         "name": user.name,
         "email": user.email,
@@ -188,19 +215,6 @@ def signup(user: User):
         "weight": user.weight,
         "goal": user.goal
     })
-    if not validate_password(user.password):
-        return {
-        "message":
-        "Weak password"
-    }
-
-    email_pattern = r"^[^\s@]+@[^\s@]+\.[^\s@]+$"
-
-    if not re.match(email_pattern,user.email):
-        return {
-        "message":
-        "Invalid email"
-    }
 
     print("Inserted ID:", result.inserted_id)  # DEBUG
 

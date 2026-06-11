@@ -1,14 +1,10 @@
 import { useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-
+import { Eye, EyeOff, Cake } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardContent,
-} from "@/components/ui/card";
-import { Cake } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 
 import {
   User,
@@ -27,6 +23,7 @@ function Signup() {
   const [height, setHeight] = useState("");
   const [weight, setWeight] = useState("");
   const [goal, setGoal] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSignup = async () => {
     const emailRegex =
@@ -58,7 +55,7 @@ function Signup() {
     }
 
     try {
-      await axios.post(
+      const response = await axios.post(
         "http://127.0.0.1:8000/signup",
         {
           name,
@@ -70,6 +67,11 @@ function Signup() {
           goal,
         }
       );
+
+      if (!response.data.userId) {
+        alert(response.data.message);
+        return;
+      }
 
       alert("Signup Successful");
       window.location.href = "/";
@@ -116,12 +118,25 @@ function Signup() {
 
             <div className="relative">
               <Lock className="absolute left-3 top-2 h-4 w-4 text-slate-400" />
+
               <Input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 placeholder="Create Password"
-                className="pl-10 bg-slate-800 border-slate-700 text-white"
+                className="pl-10 pr-10 bg-slate-800 border-slate-700 text-white"
                 onChange={(e) => setPassword(e.target.value)}
               />
+
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-2 text-slate-400 hover:text-white"
+              >
+                {showPassword ? (
+                  <EyeOff size={18} />
+                ) : (
+                  <Eye size={18} />
+                )}
+              </button>
             </div>
 
             <div className="relative">

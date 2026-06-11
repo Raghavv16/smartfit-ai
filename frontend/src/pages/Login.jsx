@@ -1,23 +1,15 @@
 import { useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardContent,
-} from "@/components/ui/card";
-
-import {
-  Dumbbell,
-  Mail,
-  Lock,
-} from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Dumbbell, Mail, Lock, Eye, EyeOff } from "lucide-react";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async () => {
     try {
@@ -138,32 +130,32 @@ function Login() {
           <div className="relative mb-6">
             <Lock
               size={18}
-              className="
-                absolute
-                left-5
-                top-1/2
-                -translate-y-1/2
-                text-slate-400
-              "
+              className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 z-10"
             />
 
             <Input
-              type="password"
+              type={showPassword ? "text" : "password"}
               placeholder="Enter Password"
-              className="
-                pl-16
-                h-14
-                bg-slate-800
-                border-slate-700
-                text-white
-                placeholder:text-slate-400
-                focus:border-emerald-500
-              "
+              className="pl-16 pr-16 h-14 bg-slate-800 border-slate-700 text-white placeholder:text-slate-400 focus:border-emerald-500"
               value={password}
               onChange={(e) =>
                 setPassword(e.target.value)
               }
             />
+
+            <button
+              type="button"
+              onClick={() =>
+                setShowPassword(!showPassword)
+              }
+              className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition"
+            >
+              {showPassword ? (
+                <EyeOff size={18} />
+              ) : (
+                <Eye size={18} />
+              )}
+            </button>
           </div>
 
           {/* Login Button */}
