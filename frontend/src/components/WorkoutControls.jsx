@@ -1,66 +1,74 @@
 import axios from "axios";
 import { Button } from "./ui/button";
+import {
+  Dumbbell,
+  Activity,
+  Armchair,
+  Timer,
+  Zap,
+} from "lucide-react";
 
 function WorkoutControls({ refreshWorkouts }) {
-
   const startWorkout = async (exercise) => {
     try {
-
       const userId = localStorage.getItem("userId");
-
-      console.log("User ID:", userId);
 
       await axios.get(
         `http://127.0.0.1:8000/${exercise}/${userId}`
       );
 
       refreshWorkouts();
-
     } catch (error) {
       console.log(error);
     }
   };
 
+  const buttonStyle =
+    "flex items-center gap-2 min-w-[180px] justify-center bg-slate-900/70 backdrop-blur-sm border border-slate-700 text-white rounded-2xl px-6 py-6 hover:bg-emerald-500/10 hover:border-emerald-500 hover:shadow-[0_0_20px_rgba(16,185,129,0.25)] transition-all duration-300";
+
   return (
-  <div className="flex flex-wrap justify-center gap-4 my-8">
+    <div className="flex flex-wrap justify-center gap-4 my-8">
+      <Button
+        onClick={() => startWorkout("pushup")}
+        className={buttonStyle}
+      >
+        <Dumbbell size={18} />
+        Pushup
+      </Button>
 
-    <Button
-      onClick={() => startWorkout("pushup")}
-      className="bg-slate-900/70 backdrop-blur-xl border border-slate-700 hover:border-emerald-500 hover:bg-emerald-500/20 text-white rounded-2xl px-6 py-6 transition-all duration-300"
-    >
-      Start Pushup
-    </Button>
+      <Button
+        onClick={() => startWorkout("squat")}
+        className={buttonStyle}
+      >
+        <Activity size={18} />
+        Squat
+      </Button>
 
-    <Button
-      onClick={() => startWorkout("squat")}
-      className="bg-slate-900/70 backdrop-blur-xl border border-slate-700 hover:border-emerald-500 hover:bg-emerald-500/20 text-white rounded-2xl px-6 py-6 transition-all duration-300"
-    >
-      Start Squat
-    </Button>
+      <Button
+        onClick={() => startWorkout("bicep")}
+        className={buttonStyle}
+      >
+        <Armchair size={18} />
+        Bicep Curl
+      </Button>
 
-    <Button
-      onClick={() => startWorkout("bicep")}
-      className="bg-slate-900/70 backdrop-blur-xl border border-slate-700 hover:border-emerald-500 hover:bg-emerald-500/20 text-white rounded-2xl px-6 py-6 transition-all duration-300"
-    >
-      Start Bicep Curl
-    </Button>
+      <Button
+        onClick={() => startWorkout("plank")}
+        className={buttonStyle}
+      >
+        <Timer size={18} />
+        Plank
+      </Button>
 
-    <Button
-      onClick={() => startWorkout("plank")}
-      className="bg-slate-900/70 backdrop-blur-xl border border-slate-700 hover:border-emerald-500 hover:bg-emerald-500/20 text-white rounded-2xl px-6 py-6 transition-all duration-300"
-    >
-      Start Plank
-    </Button>
-
-    <Button
-      onClick={() => startWorkout("jumping-jacks")}
-      className="bg-slate-900/70 backdrop-blur-xl border border-slate-700 hover:border-emerald-500 hover:bg-emerald-500/20 text-white rounded-2xl px-6 py-6 transition-all duration-300"
-    >
-      Start Jumping Jacks
-    </Button>
-
-  </div>
-);
+      <Button
+        onClick={() => startWorkout("jumping-jacks")}
+        className={buttonStyle}
+      >
+        <Zap size={18} />
+        Jumping Jacks
+      </Button>
+    </div>
+  );
 }
 
 export default WorkoutControls;

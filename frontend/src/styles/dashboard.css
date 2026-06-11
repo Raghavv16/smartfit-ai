@@ -293,7 +293,7 @@ body{
 
 /* CHARTS */
 
-.chart-grid{
+/* .chart-grid{
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:20px;
@@ -329,11 +329,11 @@ body{
 .progress-box{
   margin-top:35px;
   margin-bottom:35px;
-}
+} */
 
 /* WORKOUT HISTORY */
 
-.history{
+/* .history{
   margin-top:35px;
 }
 
@@ -367,11 +367,11 @@ body{
 
 .history-card:hover{
   transform:translateY(-4px);
-}
+} */
 
 /* SCROLLBAR */
 
-::-webkit-scrollbar{
+/* ::-webkit-scrollbar{
   width:8px;
 }
 
@@ -382,10 +382,10 @@ body{
 ::-webkit-scrollbar-thumb{
   background:#22c55e;
   border-radius:20px;
-}
+} */
 
 /* RESPONSIVE */
-
+/* 
 @media(max-width:992px){
 
   .chart-grid{
@@ -414,11 +414,11 @@ body{
   .hero h1{
     font-size:2.2rem;
   }
-}
+} */
 
 /* PERSONAL RECORDS */
 
-.records-grid{
+/* .records-grid{
   display:flex;
   justify-content:center;
   flex-wrap:wrap;
@@ -499,4 +499,4 @@ body{
 
   box-shadow:
     0 0 10px rgba(34,197,94,.3);
-} */
+}  */

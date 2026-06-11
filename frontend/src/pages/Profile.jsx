@@ -1,6 +1,17 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import "../styles/Profile.css";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+
+import {
+  User,
+  Calendar,
+  Ruler,
+  Weight,
+  Target,
+  Pencil,
+} from "lucide-react";
 
 function Profile() {
   const [user, setUser] = useState({});
@@ -9,40 +20,30 @@ function Profile() {
 
   const userId = localStorage.getItem("userId");
 
-  // ---------------- FETCH PROFILE ----------------
   useEffect(() => {
     if (!userId) return;
 
     axios
       .get(`http://127.0.0.1:8000/profile/${userId}`)
       .then((res) => {
-        console.log(res.data);
-
-        if (res.data.message) {
-          console.log("Profile error:", res.data.message);
-          return;
+        if (!res.data.message) {
+          setUser(res.data);
         }
-
-        setUser(res.data);
       })
       .catch((err) => console.log(err));
   }, [userId]);
 
-  // ---------------- OPEN EDIT ----------------
   const openEdit = () => {
     setEditData(user);
     setIsEditOpen(true);
   };
 
-  // ---------------- HANDLE UPDATE ----------------
   const handleUpdate = async () => {
     try {
-      const res = await axios.put(
+      await axios.put(
         `http://127.0.0.1:8000/profile/${userId}`,
         editData
       );
-
-      console.log(res.data);
 
       setUser(editData);
       setIsEditOpen(false);
@@ -52,141 +53,202 @@ function Profile() {
   };
 
   return (
-    <div className="profile-container">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-green-950 p-6">
+      <div className="max-w-5xl mx-auto">
+        <Card className="bg-slate-900/70 border-slate-800 backdrop-blur-xl rounded-3xl">
+          <CardContent className="p-8">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row items-center gap-6">
+              <div className="h-24 w-24 rounded-full bg-emerald-500 flex items-center justify-center text-4xl font-bold text-white shadow-lg">
+                {user?.name?.charAt(0)?.toUpperCase()}
+              </div>
 
-      <div className="profile-card">
+              <div className="flex-1">
+                <h1 className="text-3xl font-bold text-white">
+                  {user.name}
+                </h1>
 
-        {/* HEADER */}
-        <div className="profile-header">
+                <p className="text-slate-400 mt-1">
+                  {user.email}
+                </p>
+              </div>
 
-          <div className="profile-avatar">
-            {user.name?.charAt(0)}
+              <Button
+                onClick={openEdit}
+                className="bg-emerald-500 hover:bg-emerald-600"
+              >
+                <Pencil className="mr-2 h-4 w-4" />
+                Edit Profile
+              </Button>
+            </div>
+
+            {/* Stats */}
+            <div className="grid md:grid-cols-3 gap-5 mt-8">
+              <Card className="bg-slate-800/50 border-slate-700">
+                <CardContent className="p-5">
+                  <div className="flex items-center gap-3">
+                    <Calendar className="text-emerald-400" />
+                    <div>
+                      <p className="text-slate-400 text-sm">
+                        Age
+                      </p>
+                      <h3 className="text-xl font-bold text-white">
+                        {user.age}
+                      </h3>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-slate-800/50 border-slate-700">
+                <CardContent className="p-5">
+                  <div className="flex items-center gap-3">
+                    <Ruler className="text-emerald-400" />
+                    <div>
+                      <p className="text-slate-400 text-sm">
+                        Height
+                      </p>
+                      <h3 className="text-xl font-bold text-white">
+                        {user.height} cm
+                      </h3>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-slate-800/50 border-slate-700">
+                <CardContent className="p-5">
+                  <div className="flex items-center gap-3">
+                    <Weight className="text-emerald-400" />
+                    <div>
+                      <p className="text-slate-400 text-sm">
+                        Weight
+                      </p>
+                      <h3 className="text-xl font-bold text-white">
+                        {user.weight} kg
+                      </h3>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Goal */}
+            <Card className="mt-6 bg-slate-800/50 border-slate-700">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3">
+                  <Target className="text-emerald-400" />
+                  <div>
+                    <p className="text-slate-400 text-sm">
+                      Fitness Goal
+                    </p>
+                    <h3 className="text-xl font-bold text-white">
+                      {user.goal}
+                    </h3>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </CardContent>
+        </Card>
+
+        {/* Modal */}
+        {isEditOpen && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="w-full max-w-md rounded-3xl bg-slate-900 border border-slate-700 p-6">
+              <h2 className="text-2xl font-bold text-white mb-5">
+                Edit Profile
+              </h2>
+
+              <div className="space-y-4">
+                <input
+                  disabled
+                  value={editData.name || ""}
+                  className="w-full rounded-lg bg-slate-800 p-3 text-white"
+                />
+
+                <input
+                  disabled
+                  value={editData.email || ""}
+                  className="w-full rounded-lg bg-slate-800 p-3 text-white"
+                />
+
+                <input
+                  type="number"
+                  placeholder="Age"
+                  value={editData.age || ""}
+                  onChange={(e) =>
+                    setEditData({
+                      ...editData,
+                      age: e.target.value,
+                    })
+                  }
+                  className="w-full rounded-lg bg-slate-800 p-3 text-white"
+                />
+
+                <input
+                  type="number"
+                  placeholder="Height"
+                  value={editData.height || ""}
+                  onChange={(e) =>
+                    setEditData({
+                      ...editData,
+                      height: e.target.value,
+                    })
+                  }
+                  className="w-full rounded-lg bg-slate-800 p-3 text-white"
+                />
+
+                <input
+                  type="number"
+                  placeholder="Weight"
+                  value={editData.weight || ""}
+                  onChange={(e) =>
+                    setEditData({
+                      ...editData,
+                      weight: e.target.value,
+                    })
+                  }
+                  className="w-full rounded-lg bg-slate-800 p-3 text-white"
+                />
+
+                <select
+                  value={editData.goal || ""}
+                  onChange={(e) =>
+                    setEditData({
+                      ...editData,
+                      goal: e.target.value,
+                    })
+                  }
+                  className="w-full rounded-lg bg-slate-800 p-3 text-white"
+                >
+                  <option>Weight Loss</option>
+                  <option>Weight Gain</option>
+                  <option>Muscle Gain</option>
+                  <option>Fitness</option>
+                </select>
+
+                <div className="flex gap-3 pt-2">
+                  <Button
+                    onClick={handleUpdate}
+                    className="flex-1 bg-emerald-500 hover:bg-emerald-600"
+                  >
+                    Save
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsEditOpen(false)}
+                    className="flex-1"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            </div>
           </div>
-
-          <div className="profile-info">
-            <h1>{user.name}</h1>
-            <p>{user.email}</p>
-          </div>
-
-        </div>
-
-        {/* EDIT BUTTON */}
-        <button className="edit-btn" onClick={openEdit}>
-          Edit Profile
-        </button>
-
-        {/* GRID */}
-        <div className="profile-grid">
-
-          <div className="profile-item">
-            <h4>Age</h4>
-            <p>{user.age}</p>
-          </div>
-
-          <div className="profile-item">
-            <h4>Height</h4>
-            <p>{user.height} cm</p>
-          </div>
-
-          <div className="profile-item">
-            <h4>Weight</h4>
-            <p>{user.weight} kg</p>
-          </div>
-
-        </div>
-
-        {/* GOAL */}
-        <div className="goal-card">
-          <h3>Fitness Goal</h3>
-          <p>{user.goal}</p>
-        </div>
-
+        )}
       </div>
-
-      {/* ---------------- EDIT MODAL ---------------- */}
-   {isEditOpen && (
-  <div className="modal-overlay">
-
-    <div className="modal">
-
-      <h2>Edit Profile</h2>
-
-      {/* NAME (NOT EDITABLE) */}
-      <label>Name</label>
-      <input
-        value={editData.name || ""}
-        disabled
-      />
-
-      {/* EMAIL (NOT EDITABLE) */}
-      <label>Email</label>
-      <input
-        value={editData.email || ""}
-        disabled
-      />
-
-      {/* AGE */}
-      <label>Age</label>
-      <input
-        type="number"
-        value={editData.age || ""}
-        onChange={(e) =>
-          setEditData({ ...editData, age: e.target.value })
-        }
-      />
-
-      {/* HEIGHT */}
-      <label>Height (cm)</label>
-      <input
-        type="number"
-        value={editData.height || ""}
-        onChange={(e) =>
-          setEditData({ ...editData, height: e.target.value })
-        }
-      />
-
-      {/* WEIGHT */}
-      <label>Weight (kg)</label>
-      <input
-        type="number"
-        value={editData.weight || ""}
-        onChange={(e) =>
-          setEditData({ ...editData, weight: e.target.value })
-        }
-      />
-
-      {/* GOAL */}
-      <label>Fitness Goal</label>
-      <select
-        value={editData.goal || ""}
-        onChange={(e) =>
-          setEditData({ ...editData, goal: e.target.value })
-        }
-      >
-        <option value="Weight Loss">Weight Loss</option>
-        <option value="Weight Gain">Weight Gain</option>
-        <option value="Muscle Gain">Muscle Gain</option>
-        <option value="Fitness">Fitness</option>
-      </select>
-
-      {/* BUTTONS */}
-      <div className="modal-buttons">
-
-        <button onClick={handleUpdate}>
-          Save
-        </button>
-
-        <button onClick={() => setIsEditOpen(false)}>
-          Cancel
-        </button>
-
-      </div>
-
-    </div>
-
-  </div>
-)}
-
     </div>
   );
 }

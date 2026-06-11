@@ -7,10 +7,10 @@ import StatsCards from "./components/StatsCards.jsx";
 import WorkoutChart from "./components/WorkoutChart.jsx";
 import PieAnalytics from "./components/PieAnalytics.jsx";
 import ProgressChart from "./components/ProgressChart.jsx";
-import WorkoutHistory from "./components/WorkoutHistory.jsx";
+// import WorkoutHistory from "./components/History.jsx";
 import PersonalRecords from "./components/PersonalRecords.jsx";
 
-import "./styles/dashboard.css";
+// import "./styles/dashboard.css";
 import Footer from "./components/ui/shared/Footer";
 
 function Dashboard() {
@@ -83,7 +83,7 @@ function Dashboard() {
 
       <PersonalRecords workouts={workouts} />
 
-      <WorkoutHistory workouts={workouts} />
+      {/* <WorkoutHistory workouts={workouts} /> */}
 
       <Footer />
     </div>

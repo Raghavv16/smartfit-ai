@@ -27,7 +27,7 @@ function Navbar() {
                 <div className='flex items-center gap-12'>
                     <ul className='flex font-medium items-center gap-5'>
                         <li><Link to="/dashboard" className='hover:text-emerald-400 transition'>Dashboard</Link></li>
-                        <li><Link to="/dashboard" className='hover:text-emerald-400 transition'>History</Link></li>
+                        <li><Link to="/history" className='hover:text-emerald-400 transition'>History</Link></li>
                     </ul>
                     <Popover>
                         <PopoverTrigger asChild>
@@ -51,23 +51,19 @@ function Navbar() {
                                 <div className='flex flex-col my-2 text-gray-600'>
                                     <div className="flex items-center gap-2 rounded-xl p-2 hover:bg-emerald-500/10 transition cursor-pointer">
                                         <User2 />
-                                        <Button 
-                                            variant="link" 
-                                            className="p-0 h-auto text-gray-600"
-                                            ><Link to="/profile">View Profile</Link>
-                                        </Button>
+                                        <Link to="/profile" className="text-gray-600">
+                                            View Profile
+                                        </Link>
                                     </div>
-                                    <div className="flex items-center gap-2 rounded-xl p-2 hover:bg-red-500/10 transition cursor-pointer">
+                                    <div
+                                        className="flex items-center gap-2 rounded-xl p-2 hover:bg-red-500/10 transition cursor-pointer text-gray-600"
+                                        onClick={() => {
+                                            localStorage.removeItem("userId");
+                                            window.location.href = "/";
+                                        }}
+                                    >
                                         <LogOut />
-                                        <Button 
-                                            variant="link" 
-                                            className="p-0 h-auto text-gray-600"
-                                            onClick={() => {
-                                                localStorage.removeItem("userId");
-                                                window.location.href = "/";
-                                            }}
-                                            ><Link to="/profile">Logout</Link>
-                                        </Button>
+                                        <span>Logout</span>
                                     </div>
                                 </div>
                             </div>

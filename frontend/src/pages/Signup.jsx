@@ -1,10 +1,25 @@
 import { useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import "../styles/Login.css";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+} from "@/components/ui/card";
+import { Cake } from "lucide-react";
+
+import {
+  User,
+  Mail,
+  Lock,
+  Ruler,
+  Weight,
+  Target,
+} from "lucide-react";
 
 function Signup() {
-
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -13,11 +28,7 @@ function Signup() {
   const [weight, setWeight] = useState("");
   const [goal, setGoal] = useState("");
 
-
-
   const handleSignup = async () => {
-
-
     const emailRegex =
       /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -38,7 +49,7 @@ function Signup() {
         "• One number\n" +
         "• One special character"
       );
-      return
+      return;
     }
 
     if (name.length < 3) {
@@ -46,12 +57,7 @@ function Signup() {
       return;
     }
 
-    if (password.includes(" ")) {
-      alert("Password cannot contain spaces");
-      return;
-    }
     try {
-
       await axios.post(
         "http://127.0.0.1:8000/signup",
         {
@@ -61,94 +67,125 @@ function Signup() {
           age: Number(age),
           height: Number(height),
           weight: Number(weight),
-          goal
+          goal,
         }
       );
 
       alert("Signup Successful");
-
       window.location.href = "/";
-
     } catch (error) {
-
       console.log(error);
     }
   };
 
   return (
-    <div className="auth-container">
+    <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-slate-950 via-slate-900 to-green-950">
+      <Card className="w-full max-w-md bg-slate-900/80 border-slate-800 backdrop-blur-xl shadow-2xl">
+        <CardContent className="p-8">
+          <div className="text-center mb-8">
+            <div className="text-5xl mb-4">🏋️</div>
 
-      <div className="auth-card">
+            <h1 className="text-3xl font-bold text-white">
+              Create Account
+            </h1>
 
-        <div className="auth-logo">
-          🚀
-        </div>
+            <p className="text-slate-400 mt-2">
+              Join SmartFit AI and start tracking workouts
+            </p>
+          </div>
 
-        <h1>Create Account</h1>
+          <div className="space-y-4">
+            <div className="relative">
+              <User className="absolute left-3 top-2 h-4 w-4 text-slate-400" />
+              <Input
+                placeholder="Full Name"
+                className="pl-10 bg-slate-800 border-slate-700 text-white"
+                onChange={(e) => setName(e.target.value)}
+              />
+            </div>
 
-        <p>
-          Join SmartFit AI and start tracking workouts
-        </p>
+            <div className="relative">
+              <Mail className="absolute left-3 top-2 h-4 w-4 text-slate-400" />
+              <Input
+                type="email"
+                placeholder="Email Address"
+                className="pl-10 bg-slate-800 border-slate-700 text-white"
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
 
-        <input
-          type="text"
-          placeholder="Full Name"
-          onChange={(e) => setName(e.target.value)}
-        />
+            <div className="relative">
+              <Lock className="absolute left-3 top-2 h-4 w-4 text-slate-400" />
+              <Input
+                type="password"
+                placeholder="Create Password"
+                className="pl-10 bg-slate-800 border-slate-700 text-white"
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
 
-        <input
-          type="email"
-          placeholder="Email Address"
-          onChange={(e) => setEmail(e.target.value)}
-        />
+            <div className="relative">
+              <Cake className="absolute left-3 top-2 h-4 w-4 text-slate-400" />
 
-        <input
-          type="password"
-          placeholder="Create Password"
-          onChange={(e) => setPassword(e.target.value)}
-        />
+              <Input
+                type="number"
+                placeholder="Age"
+                className="pl-10 bg-slate-800 border-slate-700 text-white"
+                onChange={(e) => setAge(e.target.value)}
+              />
+            </div>
 
-        <input
-          placeholder="Age"
-          onChange={(e) => setAge(e.target.value)}
-        />
+            <div className="relative">
+              <Ruler className="absolute left-3 top-2 h-4 w-4 text-slate-400" />
+              <Input
+                placeholder="Height (cm)"
+                className="pl-10 bg-slate-800 border-slate-700 text-white"
+                onChange={(e) => setHeight(e.target.value)}
+              />
+            </div>
 
-        <input
-          placeholder="Height (cm)"
-          onChange={(e) => setHeight(e.target.value)}
-        />
+            <div className="relative">
+              <Weight className="absolute left-3 top-2 h-4 w-4 text-slate-400" />
+              <Input
+                placeholder="Weight (kg)"
+                className="pl-10 bg-slate-800 border-slate-700 text-white"
+                onChange={(e) => setWeight(e.target.value)}
+              />
+            </div>
 
-        <input
-          placeholder="Weight (kg)"
-          onChange={(e) => setWeight(e.target.value)}
-        />
+            <div className="relative">
+              <Target className="absolute left-3 top-2 h-4 w-4 text-slate-400 z-10" />
+              <select
+                className="w-full h-10 rounded-md border border-slate-700 bg-slate-800 text-white pl-10"
+                onChange={(e) => setGoal(e.target.value)}
+              >
+                <option value="">Select Goal</option>
+                <option value="Weight Loss">Weight Loss</option>
+                <option value="Weight Gain">Weight Gain</option>
+                <option value="Muscle Gain">Muscle Gain</option>
+                <option value="Fitness">Fitness</option>
+              </select>
+            </div>
 
-        <select
-          onChange={(e) => setGoal(e.target.value)}
-        >
-          <option value="">Select Goal</option>
-          <option value="Weight Loss">Weight Loss</option>
-          <option value="Weight Gain">Weight Gain</option>
-          <option value="Muscle Gain">Muscle Gain</option>
-          <option value="Fitness">Fitness</option>
-        </select>
+            <Button
+              onClick={handleSignup}
+              className="w-full bg-emerald-500 hover:bg-emerald-600 text-white"
+            >
+              Create Account
+            </Button>
+          </div>
 
-        <button
-          className="auth-btn"
-          onClick={handleSignup}
-        >
-          Sign Up
-        </button>
-
-        <div className="auth-footer">
-          Already have an account?
-          <Link to="/">
-            {" "}Login
-          </Link>
-        </div>
-
-      </div>
-
+          <p className="text-center text-slate-400 mt-6">
+            Already have an account?{" "}
+            <Link
+              to="/"
+              className="text-emerald-400 hover:text-emerald-300"
+            >
+              Login
+            </Link>
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
 }
