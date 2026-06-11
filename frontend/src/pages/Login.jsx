@@ -49,7 +49,7 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-green-950 flex items-center justify-center p-6">
+    <div className="min-h-screen bg-linear-to-br from-slate-950 via-slate-900 to-emerald-950 flex items-center justify-center p-6">
       <Card
         className="
           w-full
@@ -73,7 +73,7 @@ function Login() {
                 h-24
                 w-24
                 rounded-3xl
-                bg-gradient-to-br
+                bg-linear-to-br
                 from-emerald-400
                 to-emerald-600
                 flex

@@ -15,7 +15,6 @@ import Footer from "./components/ui/shared/Footer";
 
 function Dashboard() {
   const [workouts, setWorkouts] = useState([]);
-  const [darkMode, setDarkMode] = useState(false);
 
   const userId = localStorage.getItem("userId");
 
@@ -48,9 +47,8 @@ function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-green-950 text-white">
+    <div className="min-h-screen bg-linear-to-br from-slate-950 via-slate-900 to-emerald-950 text-white">
       <Navbar />
-      {/* <Header darkMode={darkMode} setDarkMode={setDarkMode} /> */}
 
       <Hero />
 
@@ -82,8 +80,6 @@ function Dashboard() {
       <ProgressChart workouts={workouts} />
 
       <PersonalRecords workouts={workouts} />
-
-      {/* <WorkoutHistory workouts={workouts} /> */}
 
       <Footer />
     </div>

@@ -1,12 +1,13 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from database import workouts_collection, users_collection
+from bson import ObjectId
+from utils.cloudinary import cloudinary
 import subprocess
 import sys
 import re
-
-from bson import ObjectId
+import cloudinary.uploader
 
 app = FastAPI()
 
@@ -283,4 +284,24 @@ def update_profile(user_id: str, profile: dict):
 
     return {
         "message": "Profile Updated Successfully"
+    }
+
+@app.post("/upload-avatar/{user_id}")
+async def upload_avatar(user_id: str, file: UploadFile = File(...)):
+
+    result = cloudinary.uploader.upload(file.file)
+
+    avatar_url = result["secure_url"]
+
+    users_collection.update_one(
+        {"_id": ObjectId(user_id)},
+        {
+            "$set": {
+                "avatar": avatar_url
+            }
+        }
+    )
+
+    return {
+        "avatar_url": result["secure_url"]
     }

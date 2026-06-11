@@ -1,17 +1,10 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-
-import {
-  User,
-  Calendar,
-  Ruler,
-  Weight,
-  Target,
-  Pencil,
-} from "lucide-react";
+import { Calendar, Ruler, Weight, Target, Pencil } from "lucide-react";
+import Navbar from "@/components/ui/shared/Navbar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 function Profile() {
   const [user, setUser] = useState({});
@@ -52,202 +45,249 @@ function Profile() {
     }
   };
 
+  const uploadAvatar = async (file) => {
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await axios.post(
+      `http://127.0.0.1:8000/upload-avatar/${userId}`,
+      formData
+    );
+
+    setUser({
+      ...user,
+      avatar: res.data.avatar_url,
+    });
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-green-950 p-6">
-      <div className="max-w-5xl mx-auto">
-        <Card className="bg-slate-900/70 border-slate-800 backdrop-blur-xl rounded-3xl">
-          <CardContent className="p-8">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row items-center gap-6">
-              <div className="h-24 w-24 rounded-full bg-emerald-500 flex items-center justify-center text-4xl font-bold text-white shadow-lg">
-                {user?.name?.charAt(0)?.toUpperCase()}
-              </div>
+    <div>
+      <Navbar />
+      <div className="min-h-screen bg-linear-to-br from-slate-950 via-slate-900 to-emerald-950 p-6">
+        <div className="max-w-5xl mx-auto">
+          <Card className="bg-slate-900/70 border-slate-800 backdrop-blur-xl rounded-3xl">
+            <CardContent className="p-8">
+              {/* Header */}
+              <div className="flex flex-col md:flex-row items-center gap-6">
+                <div className="relative w-fit">
 
-              <div className="flex-1">
-                <h1 className="text-3xl font-bold text-white">
-                  {user.name}
-                </h1>
+                  <Avatar className="h-24 w-24 text-4xl ring-2 ring-emerald-500/40">
+                    {user?.avatar ? (
+                      <AvatarImage src={user.avatar} alt={user.name} />
+                    ) : (
+                      <AvatarFallback className="bg-emerald-500 text-white text-4xl font-bold">
+                        {user?.name?.charAt(0)?.toUpperCase()}
+                      </AvatarFallback>
+                    )}
+                  </Avatar>
 
-                <p className="text-slate-400 mt-1">
-                  {user.email}
-                </p>
-              </div>
+                  <label
+                    htmlFor="avatar-upload"
+                    className="absolute bottom-0 right-0 bg-emerald-500 border border-blue-50 p-2 rounded-full cursor-pointer shadow-md hover:bg-emerald-600 transition"
+                  >
+                    <Pencil size={14} className="text-white" />
+                  </label>
 
-              <Button
-                onClick={openEdit}
-                className="bg-emerald-500 hover:bg-emerald-600"
-              >
-                <Pencil className="mr-2 h-4 w-4" />
-                Edit Profile
-              </Button>
-            </div>
+                  <input
+                    id="avatar-upload"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      uploadAvatar(e.target.files[0]);
+                    }}
+                  />
 
-            {/* Stats */}
-            <div className="grid md:grid-cols-3 gap-5 mt-8">
-              <Card className="bg-slate-800/50 border-slate-700">
-                <CardContent className="p-5">
-                  <div className="flex items-center gap-3">
-                    <Calendar className="text-emerald-400" />
-                    <div>
-                      <p className="text-slate-400 text-sm">
-                        Age
-                      </p>
-                      <h3 className="text-xl font-bold text-white">
-                        {user.age}
-                      </h3>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-slate-800/50 border-slate-700">
-                <CardContent className="p-5">
-                  <div className="flex items-center gap-3">
-                    <Ruler className="text-emerald-400" />
-                    <div>
-                      <p className="text-slate-400 text-sm">
-                        Height
-                      </p>
-                      <h3 className="text-xl font-bold text-white">
-                        {user.height} cm
-                      </h3>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-slate-800/50 border-slate-700">
-                <CardContent className="p-5">
-                  <div className="flex items-center gap-3">
-                    <Weight className="text-emerald-400" />
-                    <div>
-                      <p className="text-slate-400 text-sm">
-                        Weight
-                      </p>
-                      <h3 className="text-xl font-bold text-white">
-                        {user.weight} kg
-                      </h3>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Goal */}
-            <Card className="mt-6 bg-slate-800/50 border-slate-700">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3">
-                  <Target className="text-emerald-400" />
-                  <div>
-                    <p className="text-slate-400 text-sm">
-                      Fitness Goal
-                    </p>
-                    <h3 className="text-xl font-bold text-white">
-                      {user.goal}
-                    </h3>
-                  </div>
                 </div>
-              </CardContent>
-            </Card>
-          </CardContent>
-        </Card>
 
-        {/* Modal */}
-        {isEditOpen && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="w-full max-w-md rounded-3xl bg-slate-900 border border-slate-700 p-6">
-              <h2 className="text-2xl font-bold text-white mb-5">
-                Edit Profile
-              </h2>
+                <div className="flex-1">
+                  <h1 className="text-3xl font-bold text-white">
+                    {user.name}
+                  </h1>
 
-              <div className="space-y-4">
-                <input
-                  disabled
-                  value={editData.name || ""}
-                  className="w-full rounded-lg bg-slate-800 p-3 text-white"
-                />
+                  <p className="text-slate-400 mt-1">
+                    {user.email}
+                  </p>
+                </div>
 
-                <input
-                  disabled
-                  value={editData.email || ""}
-                  className="w-full rounded-lg bg-slate-800 p-3 text-white"
-                />
-
-                <input
-                  type="number"
-                  placeholder="Age"
-                  value={editData.age || ""}
-                  onChange={(e) =>
-                    setEditData({
-                      ...editData,
-                      age: e.target.value,
-                    })
-                  }
-                  className="w-full rounded-lg bg-slate-800 p-3 text-white"
-                />
-
-                <input
-                  type="number"
-                  placeholder="Height"
-                  value={editData.height || ""}
-                  onChange={(e) =>
-                    setEditData({
-                      ...editData,
-                      height: e.target.value,
-                    })
-                  }
-                  className="w-full rounded-lg bg-slate-800 p-3 text-white"
-                />
-
-                <input
-                  type="number"
-                  placeholder="Weight"
-                  value={editData.weight || ""}
-                  onChange={(e) =>
-                    setEditData({
-                      ...editData,
-                      weight: e.target.value,
-                    })
-                  }
-                  className="w-full rounded-lg bg-slate-800 p-3 text-white"
-                />
-
-                <select
-                  value={editData.goal || ""}
-                  onChange={(e) =>
-                    setEditData({
-                      ...editData,
-                      goal: e.target.value,
-                    })
-                  }
-                  className="w-full rounded-lg bg-slate-800 p-3 text-white"
+                <Button
+                  onClick={openEdit}
+                  className="bg-emerald-500 hover:bg-emerald-600"
                 >
-                  <option>Weight Loss</option>
-                  <option>Weight Gain</option>
-                  <option>Muscle Gain</option>
-                  <option>Fitness</option>
-                </select>
+                  <Pencil className="mr-2 h-4 w-4" />
+                  Edit Profile
+                </Button>
+              </div>
 
-                <div className="flex gap-3 pt-2">
-                  <Button
-                    onClick={handleUpdate}
-                    className="flex-1 bg-emerald-500 hover:bg-emerald-600"
-                  >
-                    Save
-                  </Button>
+              {/* Stats */}
+              <div className="grid md:grid-cols-3 gap-5 mt-8">
+                <Card className="bg-slate-800/50 border-slate-700">
+                  <CardContent className="p-5">
+                    <div className="flex items-center gap-3">
+                      <Calendar className="text-emerald-400" />
+                      <div>
+                        <p className="text-slate-400 text-sm">
+                          Age
+                        </p>
+                        <h3 className="text-xl font-bold text-white">
+                          {user.age}
+                        </h3>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
 
-                  <Button
-                    variant="outline"
-                    onClick={() => setIsEditOpen(false)}
-                    className="flex-1"
+                <Card className="bg-slate-800/50 border-slate-700">
+                  <CardContent className="p-5">
+                    <div className="flex items-center gap-3">
+                      <Ruler className="text-emerald-400" />
+                      <div>
+                        <p className="text-slate-400 text-sm">
+                          Height
+                        </p>
+                        <h3 className="text-xl font-bold text-white">
+                          {user.height} cm
+                        </h3>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-slate-800/50 border-slate-700">
+                  <CardContent className="p-5">
+                    <div className="flex items-center gap-3">
+                      <Weight className="text-emerald-400" />
+                      <div>
+                        <p className="text-slate-400 text-sm">
+                          Weight
+                        </p>
+                        <h3 className="text-xl font-bold text-white">
+                          {user.weight} kg
+                        </h3>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Goal */}
+              <Card className="mt-6 bg-slate-800/50 border-slate-700">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3">
+                    <Target className="text-emerald-400" />
+                    <div>
+                      <p className="text-slate-400 text-sm">
+                        Fitness Goal
+                      </p>
+                      <h3 className="text-xl font-bold text-white">
+                        {user.goal}
+                      </h3>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </CardContent>
+          </Card>
+
+          {/* Modal */}
+          {isEditOpen && (
+            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+              <div className="w-full max-w-md rounded-3xl bg-slate-900 border border-slate-700 p-6">
+                <h2 className="text-2xl font-bold text-white mb-5">
+                  Edit Profile
+                </h2>
+
+                <div className="space-y-4">
+                  <input
+                    disabled
+                    value={editData.name || ""}
+                    className="w-full rounded-lg bg-slate-800 p-3 text-white"
+                  />
+
+                  <input
+                    disabled
+                    value={editData.email || ""}
+                    className="w-full rounded-lg bg-slate-800 p-3 text-white"
+                  />
+
+                  <input
+                    type="number"
+                    placeholder="Age"
+                    value={editData.age || ""}
+                    onChange={(e) =>
+                      setEditData({
+                        ...editData,
+                        age: e.target.value,
+                      })
+                    }
+                    className="w-full rounded-lg bg-slate-800 p-3 text-white"
+                  />
+
+                  <input
+                    type="number"
+                    placeholder="Height"
+                    value={editData.height || ""}
+                    onChange={(e) =>
+                      setEditData({
+                        ...editData,
+                        height: e.target.value,
+                      })
+                    }
+                    className="w-full rounded-lg bg-slate-800 p-3 text-white"
+                  />
+
+                  <input
+                    type="number"
+                    placeholder="Weight"
+                    value={editData.weight || ""}
+                    onChange={(e) =>
+                      setEditData({
+                        ...editData,
+                        weight: e.target.value,
+                      })
+                    }
+                    className="w-full rounded-lg bg-slate-800 p-3 text-white"
+                  />
+
+                  <select
+                    value={editData.goal || ""}
+                    onChange={(e) =>
+                      setEditData({
+                        ...editData,
+                        goal: e.target.value,
+                      })
+                    }
+                    className="w-full rounded-lg bg-slate-800 p-3 text-white"
                   >
-                    Cancel
-                  </Button>
+                    <option>Weight Loss</option>
+                    <option>Weight Gain</option>
+                    <option>Muscle Gain</option>
+                    <option>Fitness</option>
+                  </select>
+
+                  <div className="flex gap-3 pt-2">
+                    <Button
+                      onClick={handleUpdate}
+                      className="flex-1 bg-emerald-500 hover:bg-emerald-600"
+                    >
+                      Save
+                    </Button>
+
+                    <Button
+                      variant="outline"
+                      onClick={() => setIsEditOpen(false)}
+                      className="flex-1"
+                    >
+                      Cancel
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );

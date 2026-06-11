@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import WorkoutHistory from "./WorkoutHistory"; // ✅ ADD THIS
+import Navbar from "./ui/shared/Navbar";
 
 function History() {
   const [workouts, setWorkouts] = useState([]);
@@ -17,8 +18,11 @@ function History() {
   }, [userId]);
 
   return (
-    <div className="p-5">
-      <WorkoutHistory workouts={workouts} />
+    <div>
+      <Navbar />
+      <div className="min-h-screen bg-linear-to-br from-slate-950 via-slate-900 to-emerald-950 p-6">
+        <WorkoutHistory workouts={workouts} />
+      </div>
     </div>
   );
 }
