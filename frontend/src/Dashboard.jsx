@@ -9,6 +9,7 @@ import PieAnalytics from "./components/PieAnalytics.jsx";
 import ProgressChart from "./components/ProgressChart.jsx";
 import PersonalRecords from "./components/PersonalRecords.jsx";
 import Footer from "./components/ui/shared/Footer";
+import GoalProgress from "./components/GoalProgress";
 import { toast } from "sonner";
 import { Navigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
@@ -72,6 +73,7 @@ function Dashboard() {
 			<Navbar />
 
 			<Hero />
+			<GoalProgress />
 
 			<WorkoutControls
 				refreshWorkouts={() => {

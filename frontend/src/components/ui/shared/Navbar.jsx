@@ -1,14 +1,19 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { LogOut, User2 } from "lucide-react";
+import { LogOut, User2, Target } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "../popover";
 import { Avatar, AvatarFallback, AvatarImage } from "../avatar";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
+
 function Navbar() {
     const [user, setUser] = useState(null);
     const userId = localStorage.getItem("userId");
+    const [goalData, setGoalData] = useState({
+        workoutGoal: 100,
+        currentProgress: 0,
+    });
 
     const navigate = useNavigate();
 
@@ -17,11 +22,21 @@ function Navbar() {
 
         axios
             .get(`http://127.0.0.1:8000/profile/${userId}`)
-            .then(res => setUser(res.data))
-            .catch(err => {
+            .then((res) => setUser(res.data))
+            .catch((err) => {
                 console.log(err);
                 toast.error("Failed to load profile");
             });
+
+        axios
+            .get(`http://127.0.0.1:8000/goal/${userId}`)
+            .then((res) => {
+                setGoalData(res.data);
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+
     }, [userId]);
 
     const handleLogout = () => {
@@ -40,11 +55,27 @@ function Navbar() {
                 <div>
                     <h1 className='text-3xl font-bold text-white'>Smart<span className='text-emerald-400'>Fit</span></h1>
                 </div>
-                <div className='flex items-center gap-12'>
+                <div className='flex items-center gap-4 md:gap-8'>
                     <ul className='flex text-white font-medium items-center gap-5'>
                         <li><Link to="/dashboard" className='hover:text-emerald-400 transition'>Dashboard</Link></li>
                         <li><Link to="/history" className='hover:text-emerald-400 transition'>History</Link></li>
+                        <li><Link to="/goal" className="hover:text-emerald-400 transition">Goal</Link> </li>
                     </ul>
+
+
+                    <div className="hidden lg:flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800/70 border border-slate-700" >
+                        <Target
+                            size={18}
+                            className="text-emerald-400"
+                        />
+
+                        <span className="text-white text-sm">
+                            {Math.round(
+                                (goalData.currentProgress /
+                                    goalData.workoutGoal) * 100
+                            )}%
+                        </span>
+                    </div>
                     <Popover>
                         <PopoverTrigger asChild>
                             <Avatar className="cursor-pointer">
@@ -59,6 +90,7 @@ function Navbar() {
                         </PopoverTrigger>
                         <PopoverContent className="w-80 border border-emerald-500/20 bg-slate-900/80 backdrop-blur-xl shadow-xl shadow-emerald-500/10 text-white">
                             <div className=''>
+
                                 <div className="flex items-center gap-2 p-2">
                                     <Avatar className="cursor-pointer ring-2 ring-emerald-500/40">
                                         {user?.avatar ? (
