@@ -7,83 +7,109 @@ import StatsCards from "./components/StatsCards.jsx";
 import WorkoutChart from "./components/WorkoutChart.jsx";
 import PieAnalytics from "./components/PieAnalytics.jsx";
 import ProgressChart from "./components/ProgressChart.jsx";
-// import WorkoutHistory from "./components/History.jsx";
 import PersonalRecords from "./components/PersonalRecords.jsx";
-
-// import "./styles/dashboard.css";
 import Footer from "./components/ui/shared/Footer";
+import { toast } from "sonner";
+import { Navigate } from "react-router-dom";
+import { Loader2 } from "lucide-react";
 
 function Dashboard() {
-  const [workouts, setWorkouts] = useState([]);
+	const [workouts, setWorkouts] = useState([]);
+	const [loading, setLoading] = useState(true);
 
-  const userId = localStorage.getItem("userId");
+	const userId = localStorage.getItem("userId");
 
-  // ✅ SINGLE CLEAN API CALL
-  useEffect(() => {
-    if (!userId) return;
+	// ✅ SINGLE CLEAN API CALL
+	useEffect(() => {
+		if (!userId) return;
 
-    const fetchWorkouts = async () => {
-      try {
-        const response = await axios.get(
-          `http://127.0.0.1:8000/workouts/${userId}`
-        );
+		const fetchWorkouts = async () => {
+			try {
+				const response = await axios.get(
+					`http://127.0.0.1:8000/workouts/${userId}`
+				);
 
-        setWorkouts(response.data);
-      } catch (error) {
-        console.log(error);
-      }
-    };
+				setWorkouts(response.data);
 
-    fetchWorkouts();
-  }, [userId]);
+			} catch (error) {
+				console.log(error);
 
-  // ❌ If not logged in
-  if (!userId) {
-    return (
-      <div style={{ textAlign: "center", marginTop: "100px" }}>
-        <h2>Please Login First</h2>
-      </div>
-    );
-  }
+				toast.error(
+					"Failed to load workouts"
+				);
+			} finally {
+				setLoading(false);
+			}
+		};
 
-  return (
-    <div className="min-h-screen bg-linear-to-br from-slate-950 via-slate-900 to-emerald-950 text-white">
-      <Navbar />
+		fetchWorkouts();
+	}, [userId]);
 
-      <Hero />
+	// ❌ If not logged in
+	if (!userId) {
+		return <Navigate to="/" />;
+	}
 
-      <WorkoutControls
-        refreshWorkouts={() => {
-          // optional manual refresh
-          const fetchWorkouts = async () => {
-            try {
-              const response = await axios.get(
-                `http://127.0.0.1:8000/workouts/${userId}`
-              );
-              setWorkouts(response.data);
-            } catch (error) {
-              console.log(error);
-            }
-          };
+	if (loading) {
+		return (
+			<div className="min-h-screen bg-linear-to-br from-slate-950 via-slate-900 to-emerald-950 flex flex-col items-center justify-center gap-4">
 
-          fetchWorkouts();
-        }}
-      />
+				<Loader2
+					size={50}
+					className="animate-spin text-emerald-400"
+				/>
 
-      <StatsCards workouts={workouts} />
+				<p className="text-slate-300 text-lg">
+					Loading Workouts...
+				</p>
 
-      <div className="chart-grid">
-        <WorkoutChart workouts={workouts} />
-        <PieAnalytics workouts={workouts} />
-      </div>
+			</div>
+		);
+	}
 
-      <ProgressChart workouts={workouts} />
+	return (
+		<div className="min-h-screen bg-linear-to-br from-slate-950 via-slate-900 to-emerald-950 text-white">
+			<Navbar />
 
-      <PersonalRecords workouts={workouts} />
+			<Hero />
 
-      <Footer />
-    </div>
-  );
+			<WorkoutControls
+				refreshWorkouts={() => {
+					// optional manual refresh
+					const fetchWorkouts = async () => {
+						try {
+							const response = await axios.get(
+								`http://127.0.0.1:8000/workouts/${userId}`
+							);
+							setWorkouts(response.data);
+
+						} catch (error) {
+							console.log(error);
+
+							toast.error(
+								"Failed to load workouts"
+							);
+						}
+					};
+
+					fetchWorkouts();
+				}}
+			/>
+
+			<StatsCards workouts={workouts} />
+
+			<div className="chart-grid">
+				<WorkoutChart workouts={workouts} />
+				<PieAnalytics workouts={workouts} />
+			</div>
+
+			<ProgressChart workouts={workouts} />
+
+			<PersonalRecords workouts={workouts} />
+
+			<Footer />
+		</div>
+	);
 }
 
 export default Dashboard;

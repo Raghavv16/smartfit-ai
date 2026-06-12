@@ -3,19 +3,36 @@ import axios from "axios";
 import { LogOut, User2 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "../popover";
 import { Avatar, AvatarFallback, AvatarImage } from "../avatar";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 function Navbar() {
     const [user, setUser] = useState(null);
     const userId = localStorage.getItem("userId");
+
+    const navigate = useNavigate();
+
     useEffect(() => {
         if (!userId) return;
 
         axios
             .get(`http://127.0.0.1:8000/profile/${userId}`)
             .then(res => setUser(res.data))
-            .catch(err => console.log(err));
+            .catch(err => {
+                console.log(err);
+                toast.error("Failed to load profile");
+            });
     }, [userId]);
+
+    const handleLogout = () => {
+        localStorage.removeItem("userId");
+
+        toast.success("Logged Out Successfully");
+
+        setTimeout(() => {
+            navigate("/")
+        }, 500);
+    };
 
     return (
         <div className='sticky top-0 z-50 border-b border-slate-700 bg-slate-900/70 backdrop-blur-xl'>
@@ -64,10 +81,7 @@ function Navbar() {
                                     </div>
                                     <div
                                         className="flex items-center gap-2 rounded-xl p-2 hover:bg-red-500/10 transition cursor-pointer"
-                                        onClick={() => {
-                                            localStorage.removeItem("userId");
-                                            window.location.href = "/";
-                                        }}
+                                        onClick={handleLogout}
                                     >
                                         <LogOut />
                                         <span>Logout</span>

@@ -85,7 +85,7 @@ duration = int(time.time() - start_time)
 
 data = {
     "userId": user_id,
-    "exercise": "Bicep",
+    "exercise": "Bicep Curl",
     "reps": counter,
     "duration": duration,
     "date": datetime.now().isoformat()

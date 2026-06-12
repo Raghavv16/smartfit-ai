@@ -1,15 +1,18 @@
 import { useState } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dumbbell, Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { toast } from "sonner";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
+  const navigate = useNavigate();
 
   const handleLogin = async () => {
     try {
@@ -22,7 +25,7 @@ function Login() {
       );
 
       if (!response.data.userId) {
-        alert(response.data.message);
+        toast.error(response.data.message);
         return;
       }
 
@@ -31,9 +34,14 @@ function Login() {
         response.data.userId
       );
 
-      window.location.href = "/dashboard";
+      toast.success(response.data.message);
+
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 500);
+
     } catch (error) {
-      alert(
+      toast.error(
         error.response?.data?.message ||
         "Login Failed"
       );

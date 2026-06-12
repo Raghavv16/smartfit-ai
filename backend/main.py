@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from database import workouts_collection, users_collection
 from bson import ObjectId
+from bson.errors import InvalidId
 from utils.cloudinary import cloudinary
 import subprocess
 import sys
@@ -78,8 +79,8 @@ def start_bicep(user_id: str):
     ])
 
     return {
-        "exercise": "Bicep Curl",
-        "status": "started"
+        "message": "Bicep Curl Completed Successfully",
+        "exercise": "Bicep Curl"
     }
 
 
@@ -93,8 +94,8 @@ def start_squat(user_id:str):
     ])
 
     return {
-        "exercise": "Squat",
-        "status": "started"
+        "message": "Squat Completed Successfully",
+        "exercise": "Squat"
     }
 
 
@@ -107,7 +108,10 @@ def start_pushup(user_id: str):
         user_id
     ])
 
-    return {"status": "started"}
+    return {
+        "message": "Pushup Completed Successfully",
+        "exercise": "Pushup"
+        }
 
 
 
@@ -121,8 +125,8 @@ def start_plank(user_id:str):
     ])
 
     return {
-        "exercise": "Plank",
-        "status": "started"
+        "message": "Plank Completed Successfully",
+        "exercise": "Plank"
     }
 
 
@@ -137,8 +141,8 @@ def start_jumping_jacks(user_id:str):
     ])
 
     return {
-        "exercise": "Jumping Jacks",
-        "status": "started"
+        "message": "Jumping Jacks Completed Successfully",
+        "exercise": "Jumping Jacks"
     }
 
 
@@ -283,7 +287,7 @@ def get_profile(user_id: str):
 @app.put("/profile/{user_id}")
 def update_profile(user_id: str, profile: dict):
 
-    users_collection.update_one(
+    result = users_collection.update_one(
         {"_id": ObjectId(user_id)},
         {
             "$set": {
@@ -296,8 +300,13 @@ def update_profile(user_id: str, profile: dict):
         }
     )
 
+    if result.modified_count:
+        return {
+            "message": "Profile Updated Successfully"
+        }
+    
     return {
-        "message": "Profile Updated Successfully"
+        "message": "No Changes Made"
     }
 
 @app.post("/upload-avatar/{user_id}")
@@ -317,5 +326,6 @@ async def upload_avatar(user_id: str, file: UploadFile = File(...)):
     )
 
     return {
-        "avatar_url": result["secure_url"]
+        "message": "Avatar Updated Successfully",
+        "avatar_url": avatar_url
     }
