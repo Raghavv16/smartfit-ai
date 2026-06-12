@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, Ruler, Weight, Target, Pencil } from "lucide-react";
+import { User, Calendar, Ruler, Weight, Target, Pencil, Activity } from "lucide-react";
 import Navbar from "@/components/ui/shared/Navbar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
@@ -12,6 +12,12 @@ function Profile() {
   const [editData, setEditData] = useState({});
 
   const userId = localStorage.getItem("userId");
+
+  const bmi = user.height && user.weight ? (
+    user.weight / Math.pow(user.height / 100, 2)
+  ).toFixed(1) : 0;
+
+  const bmiStatus = bmi < 18.5 ? "Underweight" : bmi < 25 ? "Normal" : bmi < 30 ? "Overweight" : "Obese";
 
   useEffect(() => {
     if (!userId) return;
@@ -61,6 +67,8 @@ function Profile() {
       avatar: res.data.avatar_url,
     });
   };
+
+
 
   return (
     <div>
@@ -122,22 +130,21 @@ function Profile() {
               </div>
 
               {/* Stats */}
-              <div className="grid md:grid-cols-3 gap-5 mt-8">
-                <Card className="bg-slate-800/50 border-slate-700">
-                  <CardContent className="p-5">
-                    <div className="flex items-center gap-3">
-                      <Calendar className="text-emerald-400" />
-                      <div>
-                        <p className="text-slate-400 text-sm">
-                          Age
-                        </p>
-                        <h3 className="text-xl font-bold text-white">
-                          {user.age}
-                        </h3>
-                      </div>
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5 mt-8">                <Card className="bg-slate-800/50 border-slate-700">
+                <CardContent className="p-5">
+                  <div className="flex items-center gap-3">
+                    <Calendar className="text-emerald-400" />
+                    <div>
+                      <p className="text-slate-400 text-sm">
+                        Age
+                      </p>
+                      <h3 className="text-xl font-bold text-white">
+                        {user.age}
+                      </h3>
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </CardContent>
+              </Card>
 
                 <Card className="bg-slate-800/50 border-slate-700">
                   <CardContent className="p-5">
@@ -172,6 +179,36 @@ function Profile() {
                 </Card>
               </div>
 
+              {/* BMI Card */}
+              <Card className = "mt-6 bg-slate-800/50 border-slate-700">
+                <CardContent className="p-5">
+                  <div className = "flex items-center gap-3">
+                    <Activity className = "text-emerald-400"/>
+                    <div>
+                      <p className= "text-slate-400 text-sm">
+                        BMI
+                      </p>
+
+                      <h3 className="text-xl font-bold text-white">
+                        {bmi}
+                      </h3>
+
+                      <p className={`text-sm ${
+                        bmiStatus === "Normal"
+                        ?"text-emerald-400"
+                        :bmiStatus==="Underweight"
+                        ?"text-yellow-400"
+                        :"text-red-400"
+                      }`}>
+                        {bmiStatus}
+                      </p>
+
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+
               {/* Goal */}
               <Card className="mt-6 bg-slate-800/50 border-slate-700">
                 <CardContent className="p-6">
@@ -190,6 +227,8 @@ function Profile() {
               </Card>
             </CardContent>
           </Card>
+
+
 
           {/* Modal */}
           {isEditOpen && (
