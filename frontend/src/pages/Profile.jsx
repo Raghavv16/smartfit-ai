@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, Ruler, Weight, Target, Pencil } from "lucide-react";
+import { User, Calendar, Ruler, Weight, Target, Pencil, Activity } from "lucide-react";
 import Navbar from "@/components/ui/shared/Navbar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
@@ -13,6 +13,12 @@ function Profile() {
 	const [editData, setEditData] = useState({});
 
 	const userId = localStorage.getItem("userId");
+
+	const bmi = user.height && user.weight ? (
+		user.weight / Math.pow(user.height / 100, 2)
+	).toFixed(1) : 0;
+
+	const bmiStatus = bmi < 18.5 ? "Underweight" : bmi < 25 ? "Normal" : bmi < 30 ? "Overweight" : "Obese";
 
 	useEffect(() => {
 		if (!userId) return;
@@ -46,7 +52,7 @@ function Profile() {
 				...user,
 				...editData
 			});
-			
+
 			setIsEditOpen(false);
 
 			toast.success(
@@ -84,7 +90,7 @@ function Profile() {
 				res.data.message ||
 				"Avatar Updated Successfully"
 			);
-			
+
 		} catch (err) {
 			console.log(err);
 
@@ -133,7 +139,7 @@ function Profile() {
 										}}
 									/>
 
-								</div>
+								</div >
 
 								<div className="flex-1">
 									<h1 className="text-3xl font-bold text-white">
@@ -155,7 +161,7 @@ function Profile() {
 							</div>
 
 							{/* Stats */}
-							<div className="grid md:grid-cols-3 gap-5 mt-8">
+							<div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5 mt-8">
 								<Card className="bg-slate-800/50 border-slate-700">
 									<CardContent className="p-5">
 										<div className="flex items-center gap-3">
@@ -203,10 +209,38 @@ function Profile() {
 										</div>
 									</CardContent>
 								</Card>
-							</div>
+
+								<Card className="bg-slate-800/50 border-slate-700">
+									<CardContent className="p-5">
+										<div className="flex items-center gap-3">
+											<Activity className="text-emerald-400" />
+											<div>
+												<p className="text-slate-400 text-sm">
+													BMI
+												</p>
+
+												<h3 className="text-xl font-bold text-white">
+													{bmi}
+												</h3>
+
+												<p
+													className={`text-sm ${bmiStatus === "Normal"
+														? "text-emerald-400"
+														: bmiStatus === "Underweight"
+															? "text-yellow-400"
+															: "text-red-400"
+														}`}
+												>
+													{bmiStatus}
+												</p>
+											</div>
+										</div>
+									</CardContent>
+								</Card>
+							</div >
 
 							{/* Goal */}
-							<Card className="mt-6 bg-slate-800/50 border-slate-700">
+							< Card className="mt-6 bg-slate-800/50 border-slate-700" >
 								<CardContent className="p-6">
 									<div className="flex items-center gap-3">
 										<Target className="text-emerald-400" />
@@ -220,109 +254,112 @@ function Profile() {
 										</div>
 									</div>
 								</CardContent>
-							</Card>
-						</CardContent>
-					</Card>
+							</Card >
+							
+						</CardContent >
+					</Card >
 
 					{/* Modal */}
-					{isEditOpen && (
-						<div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-							<div className="w-full max-w-md rounded-3xl bg-slate-900 border border-slate-700 p-6">
-								<h2 className="text-2xl font-bold text-white mb-5">
-									Edit Profile
-								</h2>
+					{
+						isEditOpen && (
+							<div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+								<div className="w-full max-w-md rounded-3xl bg-slate-900 border border-slate-700 p-6">
+									<h2 className="text-2xl font-bold text-white mb-5">
+										Edit Profile
+									</h2>
 
-								<div className="space-y-4">
-									<input
-										disabled
-										value={editData.name || ""}
-										className="w-full rounded-lg bg-slate-800 p-3 text-white"
-									/>
+									<div className="space-y-4">
+										<input
+											disabled
+											value={editData.name || ""}
+											className="w-full rounded-lg bg-slate-800 p-3 text-white"
+										/>
 
-									<input
-										disabled
-										value={editData.email || ""}
-										className="w-full rounded-lg bg-slate-800 p-3 text-white"
-									/>
+										<input
+											disabled
+											value={editData.email || ""}
+											className="w-full rounded-lg bg-slate-800 p-3 text-white"
+										/>
 
-									<input
-										type="number"
-										placeholder="Age"
-										value={editData.age || ""}
-										onChange={(e) =>
-											setEditData({
-												...editData,
-												age: e.target.value,
-											})
-										}
-										className="w-full rounded-lg bg-slate-800 p-3 text-white"
-									/>
+										<input
+											type="number"
+											placeholder="Age"
+											value={editData.age || ""}
+											onChange={(e) =>
+												setEditData({
+													...editData,
+													age: e.target.value,
+												})
+											}
+											className="w-full rounded-lg bg-slate-800 p-3 text-white"
+										/>
 
-									<input
-										type="number"
-										placeholder="Height"
-										value={editData.height || ""}
-										onChange={(e) =>
-											setEditData({
-												...editData,
-												height: e.target.value,
-											})
-										}
-										className="w-full rounded-lg bg-slate-800 p-3 text-white"
-									/>
+										<input
+											type="number"
+											placeholder="Height"
+											value={editData.height || ""}
+											onChange={(e) =>
+												setEditData({
+													...editData,
+													height: e.target.value,
+												})
+											}
+											className="w-full rounded-lg bg-slate-800 p-3 text-white"
+										/>
 
-									<input
-										type="number"
-										placeholder="Weight"
-										value={editData.weight || ""}
-										onChange={(e) =>
-											setEditData({
-												...editData,
-												weight: e.target.value,
-											})
-										}
-										className="w-full rounded-lg bg-slate-800 p-3 text-white"
-									/>
+										<input
+											type="number"
+											placeholder="Weight"
+											value={editData.weight || ""}
+											onChange={(e) =>
+												setEditData({
+													...editData,
+													weight: e.target.value,
+												})
+											}
+											className="w-full rounded-lg bg-slate-800 p-3 text-white"
+										/>
 
-									<select
-										value={editData.goal || ""}
-										onChange={(e) =>
-											setEditData({
-												...editData,
-												goal: e.target.value,
-											})
-										}
-										className="w-full rounded-lg bg-slate-800 p-3 text-white"
-									>
-										<option>Weight Loss</option>
-										<option>Weight Gain</option>
-										<option>Muscle Gain</option>
-										<option>Fitness</option>
-									</select>
-
-									<div className="flex gap-3 pt-2">
-										<Button
-											onClick={handleUpdate}
-											className="flex-1 bg-emerald-500 hover:bg-emerald-600"
+										<select
+											value={editData.goal || ""}
+											onChange={(e) =>
+												setEditData({
+													...editData,
+													goal: e.target.value,
+												})
+											}
+											className="w-full rounded-lg bg-slate-800 p-3 text-white"
 										>
-											Save
-										</Button>
+											<option>Weight Loss</option>
+											<option>Weight Gain</option>
+											<option>Muscle Gain</option>
+											<option>Fitness</option>
+										</select>
 
-										<Button
-											variant="outline"
-											onClick={() => setIsEditOpen(false)}
-											className="flex-1"
-										>
-											Cancel
-										</Button>
+										<div className="flex gap-3 pt-2">
+											<Button
+												onClick={handleUpdate}
+												className="flex-1 bg-emerald-500 hover:bg-emerald-600"
+											>
+												Save
+											</Button>
+
+											<Button
+												variant="outline"
+												onClick={() => setIsEditOpen(false)}
+												className="flex-1"
+											>
+												Cancel
+											</Button>
+										</div>
 									</div>
 								</div>
 							</div>
-						</div>
-					)}
-				</div>
-			</div>
-		</div>
+						)
+					}
+				</div >
+			</div >
+		</div >
 	);
 }
 
