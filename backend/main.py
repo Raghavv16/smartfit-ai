@@ -40,6 +40,9 @@ class User(BaseModel):
     weight: float
     goal: str
 
+    workoutGoal: int = 100
+    currentProgress: int = 0
+
 
     
 # Backend Validation
@@ -157,6 +160,15 @@ def save_workout(workout: Workout):
         workout.dict()
     )
 
+    users_collection.update_one(
+        {"_id": ObjectId(workout.userId)},
+        {
+            "$inc": {
+                "currentProgress": workout.reps
+            }
+        }
+    )
+
     return {
         "message": "Workout Saved Successfully"
     }
@@ -217,7 +229,9 @@ def signup(user: User):
         "age": user.age,
         "height": user.height,
         "weight": user.weight,
-        "goal": user.goal
+        "goal": user.goal,
+        "workoutGoal":user.workoutGoal,
+        "currentProgress":user.currentProgress
     })
 
     print("Inserted ID:", result.inserted_id)  # DEBUG
@@ -328,4 +342,72 @@ async def upload_avatar(user_id: str, file: UploadFile = File(...)):
     return {
         "message": "Avatar Updated Successfully",
         "avatar_url": avatar_url
+    }
+
+
+
+# -------------------------------
+# Goal API
+# -------------------------------
+@app.get("/goal/{user_id}")
+def get_goal(user_id:str):
+
+    user = users_collection.find_one(
+        {"_id":ObjectId(user_id)}
+    )
+
+    if not user:
+        return{
+            "message":"User not found"
+        }
+    
+    return{
+        "workoutGoal":user.get("workoutGoal",100),
+        "currentProgress":user.get("currentProgress",0)
+    }
+
+
+
+class GoalUpdate(BaseModel):
+    workoutGoal: int
+
+
+@app.put("/goal/{user_id}")
+def update_goal(
+    user_id: str,
+    data: GoalUpdate
+):
+
+    users_collection.update_one(
+        {"_id": ObjectId(user_id)},
+        {
+            "$set": {
+                "workoutGoal": data.workoutGoal
+            }
+        }
+    )
+
+    return {
+        "message": "Goal Updated Successfully"
+    }
+
+
+# -------------------------------
+# Reset Goal Progress API
+# -------------------------------
+
+@app.put("/goal/reset/{user_id}")
+def reset_goal(user_id: str):
+
+    users_collection.update_one(
+        {"_id": ObjectId(user_id)},
+        {
+            "$set": {
+                "currentProgress": 0
+            }
+        }
+    )
+
+    return {
+        "message": "Progress Reset Successfully"
     }
