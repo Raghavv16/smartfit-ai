@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { User, Calendar, Ruler, Weight, Target, Pencil, Activity } from "lucide-react";
+import { Calendar, Ruler, Weight, Target, Pencil, Activity } from "lucide-react";
 import Navbar from "@/components/ui/shared/Navbar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";

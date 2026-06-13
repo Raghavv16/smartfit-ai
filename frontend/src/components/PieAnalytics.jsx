@@ -33,7 +33,7 @@ function PieAnalytics({ workouts }) {
   return (
    <div
   className="
-    mt-6
+    my-4
     mx-2
     p-6
     rounded-3xl

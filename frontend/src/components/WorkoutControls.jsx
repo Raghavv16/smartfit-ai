@@ -44,7 +44,7 @@ function WorkoutControls({ refreshWorkouts }) {
 	text-white rounded-2xl px-6 py-6 hover:bg-emerald-500/10 hover:border-emerald-500 hover:shadow-[0_0_20px_rgba(16,185,129,0.25)] transition-all duration-300";
 
 	return (
-		<div className="flex flex-wrap justify-center gap-4 my-8">
+		<div className="flex flex-wrap justify-center gap-5 my-8 mx-2">
 			<Button
 				onClick={() => startWorkout("pushup")}
 				className={buttonStyle}

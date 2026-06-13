@@ -15,7 +15,7 @@ function Hero() {
         shadow-2xl
         shadow-emerald-500/10
         p-8 md:p-10
-        mt-4
+        my-4
         mx-2
       "
     >

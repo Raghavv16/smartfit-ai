@@ -11,11 +11,12 @@ sys.path.append(
     os.path.abspath("../backend")
 )
 
-from database import workouts_collection
-
 user_id = sys.argv[1]
 mp_pose = mp.solutions.pose
-pose = mp_pose.Pose()
+pose = mp_pose.Pose(
+    min_detection_confidence=0.5,
+    min_tracking_confidence=0.5
+)
  
 mp_draw = mp.solutions.drawing_utils
 
@@ -41,10 +42,16 @@ def calculate_angle(a, b, c):
 
 counter = 0
 stage = None
-
+angle = 0
 start_time = time.time()
+feedback = "Show Left Arm"
+arm_visible = False
+
 while True:
     success, frame = cap.read()
+    
+    box_width = 380
+    box_height = 180
     
     if not success:
         break
@@ -56,23 +63,117 @@ while True:
     if results.pose_landmarks:
         mp_draw.draw_landmarks(frame, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
         landmarks = results.pose_landmarks.landmark
-        shoulder = [landmarks[11].x, landmarks[11].y]
-        elbow = [landmarks[13].x, landmarks[13].y]
-        wrist = [landmarks[15].x, landmarks[15].y]
+        left_shoulder = landmarks[11]
+        left_elbow = landmarks[13]
+        left_wrist = landmarks[15]
+        
+        if (
+            left_shoulder.visibility > 0.7 and
+            left_elbow.visibility > 0.7 and
+            left_wrist.visibility > 0.7
+        ):
+            arm_visible = True
+            
+            shoulder = [
+                left_shoulder.x,
+                left_shoulder.y
+            ]
+            
+            elbow = [
+                left_elbow.x,
+                left_elbow.y
+            ]
 
-        angle = calculate_angle(shoulder, elbow, wrist)
+            wrist = [
+                left_wrist.x,
+                left_wrist.y
+            ]
 
-        if angle > 140:
-            stage = 'down'
-        if angle < 70 and stage == 'down':
-            stage = 'up'
-            counter += 1
+            angle = calculate_angle(
+                shoulder, 
+                elbow, 
+                wrist
+            )
 
-        # print(angle, stage)
+            # REP COUNTING LOGIC
+            if angle > 140 and stage != "down":
+                stage = 'down'
 
-    cv2.putText(frame, f'Reps: {counter}', (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+            elif angle < 70 and stage == 'down':
+                stage = 'up'
+                counter += 1
 
-    frame = cv2.resize(frame, (1280, 720))
+            # FEEDBACK LOGIC
+            if angle > 140:
+                feedback = "Ready"
+
+            elif angle > 70:
+                feedback = "Curl Up"
+
+            else:
+                feedback = "Excellent Rep!"
+                
+        else:
+            arm_visible = False
+            feedback = "Show Left Arm"
+
+    # Background
+    cv2.rectangle(
+        frame,
+        (20,20),
+        (20 + box_width, 20 + box_height),
+        (25,25,25),
+        -1
+    )
+
+    # Border
+    cv2.rectangle(
+        frame,
+        (20,20),
+        (20 + box_width, 20 + box_height),
+        (173,255,47),
+        2
+    )
+
+    cv2.putText(
+        frame,
+        "SMARTFIT AI",
+        (35, 55),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        0.8,
+        (173,255,47),
+        2
+    )
+
+    cv2.putText(
+        frame, 
+        f'REPS: {counter}', 
+        (35, 115), 
+        cv2.FONT_HERSHEY_SIMPLEX, 
+        1.6, 
+        (173,255,47), 
+        3
+    )
+
+    if feedback == "Excellent Rep!":
+        feedback_color = (0,255,0)
+
+    elif feedback == "Curl Up":
+        feedback_color = (0,255,255)
+
+    else:
+        feedback_color = (0,165,255)
+
+    cv2.putText(
+        frame,
+        feedback,
+        (35, 165),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        0.8,
+        feedback_color,
+        2
+    )
+
     cv2.imshow('Workout', frame)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
