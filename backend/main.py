@@ -9,6 +9,7 @@ import subprocess
 import sys
 import re
 import cloudinary.uploader
+import bcrypt
 
 app = FastAPI()
 
@@ -220,12 +221,18 @@ def signup(user: User):
         return {
             "message": "Weak password"
     }
+
+
+    hashed_password = bcrypt.hashpw(
+        user.password.encode("utf-8"),
+        bcrypt.gensalt()
+    ).decode("utf-8")
     
     # Insert User
     result = users_collection.insert_one({
         "name": user.name,
         "email": user.email,
-        "password": user.password,
+        "password": hashed_password,
         "age": user.age,
         "height": user.height,
         "weight": user.weight,
@@ -254,13 +261,26 @@ class Login(BaseModel):
 def login(data: Login):
 
     try:
-        user = users_collection.find_one({"email": data.email})
+        user = users_collection.find_one(
+            {"email": data.email}
+        )
 
         if not user:
-            return {"message": "User not found", "userId": None}
+            return {
+                "message": "User not found",
+                "userId": None
+            }
 
-        if user.get("password") != data.password:
-            return {"message": "Invalid password", "userId": None}
+        stored_password = user.get("password")
+
+        if not bcrypt.checkpw(
+            data.password.encode("utf-8"),
+            stored_password.encode("utf-8")
+        ):
+            return {
+                "message": "Invalid password",
+                "userId": None
+            }
 
         return {
             "message": "Login Successful",
@@ -269,8 +289,11 @@ def login(data: Login):
 
     except Exception as e:
         print("LOGIN ERROR:", e)
-        return {"message": "Server error", "userId": None}
 
+        return {
+            "message": "Server error",
+            "userId": None
+        }
 
 # -------------------------------
 # Get User Profile
@@ -291,6 +314,7 @@ def get_profile(user_id: str):
         return {"message": "User not found"}
 
     user["_id"] = str(user["_id"])
+    user.pop("password",None)
     return user
 
 # -------------------------------
