@@ -48,9 +48,13 @@ function WorkoutHistory({ workouts }) {
 									{workout.reps}
 								</p>
 
-								<p className="text-xs text-slate-400">
-									reps
-								</p>
+								{
+									workout.exercise == "Plank" ? (
+										<p className="text-xs text-slate-400"> secs </p>
+									) : (
+										<p className="text-xs text-slate-400"> reps </p>
+									)
+								}
 							</div>
 						</div>
 

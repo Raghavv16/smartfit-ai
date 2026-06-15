@@ -12,8 +12,6 @@ sys.path.append(
     os.path.abspath("../backend")
 )
 
-from database import workouts_collection
-
 user_id = sys.argv[1]
 mp_pose = mp.solutions.pose
 
@@ -53,13 +51,16 @@ def calculate_angle(a, b, c):
 
 counter = 0
 stage = None
-feedback = "Get Ready"
+feedback = "Show Full Body"
 
 start_time = time.time()
 
 while True:
 
     success, frame = cap.read()
+    
+    box_width = 380
+    box_height = 180
 
     if not success:
         break
@@ -94,7 +95,7 @@ while True:
 
         shoulder_y = landmarks[11].y
         hip_y = landmarks[23].y
-        body_horizontal = abs(shoulder_y - hip_y) < 0.15
+        body_horizontal = abs(shoulder_y - hip_y) < 0.20
         
         if not body_horizontal:
             feedback = "Keep Body Straight"
@@ -126,18 +127,8 @@ while True:
                 wrist
             )
 
-            cv2.putText(
-                frame,
-                f"Angle: {int(angle)}",
-                (50, 150),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                1,
-                (255, 255, 255),
-                2
-            )
-
             # PUSHUP LOGIC
-            if angle > 105:
+            if angle > 105 and stage != "up":
                 stage = "up"
                 feedback = "Go Down"
 
@@ -150,29 +141,67 @@ while True:
                 if stage == "up":
                     stage = "down"
                     counter += 1
+                    
+        else:
+            feedback = "Show Full Body"
+            
+    # Background
+    cv2.rectangle(
+        frame,
+        (20,20),
+        (20 + box_width, 20 + box_height),
+        (25,25,25),
+        -1
+    )
 
-    # DISPLAY PUSHUP COUNT
+    # Border
+    cv2.rectangle(
+        frame,
+        (20,20),
+        (20 + box_width, 20 + box_height),
+        (173,255,47),
+        2
+    )
+
+    cv2.putText(
+        frame,
+        "SMARTFIT AI",
+        (35,55),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        0.8,
+        (173,255,47),
+        2
+    )
+
     cv2.putText(
         frame,
         f"Pushups: {counter}",
-        (50, 50),
+        (35,115),
         cv2.FONT_HERSHEY_SIMPLEX,
-        1,
-        (0, 255, 0),
-        2
+        1.6,
+        (173,255,47),
+        3
     )
+    
+    if feedback == "Perfect Pushup":
+        feedback_color = (0,255,0)
 
+    elif feedback == "Lower More":
+        feedback_color = (0,255,255)
+
+    else:
+        feedback_color = (0,165,255)
+        
     cv2.putText(
         frame,
         feedback,
-        (50, 100),
+        (35,165),
         cv2.FONT_HERSHEY_SIMPLEX,
-        1,
-        (0, 255, 255),
+        0.8,
+        feedback_color,
         2
     )
 
-    frame = cv2.resize(frame, (1280, 720))
     cv2.imshow("Workout", frame)
 
     if cv2.waitKey(1) & 0xFF == ord("q"):

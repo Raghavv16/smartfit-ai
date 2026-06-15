@@ -45,9 +45,13 @@ function PersonalRecords({ workouts }) {
 								{record.reps}
 							</h2>
 
-							<p className="text-emerald-400 text-sm mt-1">
-								reps
-							</p>
+							{
+								exercise=="Plank" ? (
+									<p className="text-emerald-400 text-sm mt-1">secs</p>
+								) : (
+									<p className="text-emerald-400 text-sm mt-1">reps</p>
+								) 
+							}
 
 							<p className="text-slate-400 text-sm mt-4">
 								{new Date(record.date).toLocaleDateString("en-IN", {

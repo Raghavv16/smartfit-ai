@@ -11,8 +11,6 @@ sys.path.append(
     os.path.abspath("../backend")
 )
 
-from database import workouts_collection
-
 user_id = sys.argv[1]
 
 mp_pose = mp.solutions.pose
@@ -53,13 +51,16 @@ def calculate_angle(a, b, c):
 
 plank_start = None
 elapsed_time = 0
-status = "NOT HOLDING"
+feedback = "Show Full Body"
 
 start_time = time.time()
 
 while True:
 
     success, frame = cap.read()
+    
+    box_width = 380
+    box_height = 180
 
     if not success:
         break
@@ -114,9 +115,9 @@ while True:
 
         shoulder_y = landmarks[11].y
         hip_y = landmarks[23].y
-        body_horizontal = abs(shoulder_y - hip_y) < 0.15
+        body_horizontal = abs(shoulder_y - hip_y) < 0.20
 
-        hip_above_ground = hip_y < landmarks[27].y - 0.05
+        hip_above_ground = hip_y < landmarks[27].y - 0.02
 
         elbow_angle = calculate_angle(
             shoulder,
@@ -131,8 +132,7 @@ while True:
             wrist_vis > 0.7 and 
             hip_vis > 0.7 and
             knee_vis > 0.7 and
-            ankle_vis > 0.7 and
-            body_horizontal
+            ankle_vis > 0.7
         ):
             
             angle = calculate_angle(
@@ -141,56 +141,85 @@ while True:
                 ankle
             )
 
-            # DISPLAY ANGLE
-            cv2.putText(
-                frame,
-                f"Angle: {int(angle)}",
-                (50, 100),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.5,
-                (255, 255, 255),
-                2
-            )
+            if angle <= 150:
+                feedback = "Keep Body Straight"
 
-            # PLANK LOGIC
-            if (angle > 150 and
-                60 <= elbow_angle <= 140 and
-                hip_above_ground):
-                
-                status = "HOLDING"
-                
+            elif not hip_above_ground:
+                feedback = "Raise Your Hips"
+
+            elif not (50 <= elbow_angle <= 170):
+                feedback = "Adjust Elbows"
+
+            else:
+                feedback = "Perfect Plank"
+
                 if plank_start is None:
                     plank_start = time.time()
 
-                elapsed_time = int(time.time() - plank_start)
+                elapsed_time = int(
+                    time.time() - plank_start
+                )
+                
+        else:
+            feedback = "Show Full Body"
 
-            else:
-                status = "NOT HOLDING"
-                plank_start = None
-                elapsed_time = 0
+    # Background
+    cv2.rectangle(
+        frame,
+        (20,20),
+        (20 + box_width, 20 + box_height),
+        (25,25,25),
+        -1
+    )
 
-    # DISPLAY PLANK TIMER
+    # Border
+    cv2.rectangle(
+        frame,
+        (20,20),
+        (20 + box_width, 20 + box_height),
+        (173,255,47),
+        2
+    )
+
+    cv2.putText(
+        frame,
+        "SMARTFIT AI",
+        (35,55),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        0.8,
+        (173,255,47),
+        2
+    )
+
     cv2.putText(
         frame,
         f"Time: {elapsed_time}s",
-        (50, 50),
+        (35,115),
         cv2.FONT_HERSHEY_SIMPLEX,
-        1,
-        (0, 255, 0),
-        2
+        1.6,
+        (173,255,47),
+        3
     )
+    
+    if feedback == "Perfect Plank":
+        feedback_color = (0,255,0)
 
+    elif feedback == "Adjust Position":
+        feedback_color = (0,255,255)
+
+    else:
+        feedback_color = (0,165,255)
+        
     cv2.putText(
         frame,
-        f"Status: {status}",
-        (50, 100),
+        feedback,
+        (35,165),
         cv2.FONT_HERSHEY_SIMPLEX,
-        1,
-        (0, 255, 255),
+        0.8,
+        feedback_color,
         2
     )
 
-    frame = cv2.resize(frame, (1280, 720))
     cv2.imshow("Workout", frame)
 
     if cv2.waitKey(1) & 0xFF == ord("q"):

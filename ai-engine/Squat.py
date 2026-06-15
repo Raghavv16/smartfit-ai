@@ -11,8 +11,6 @@ sys.path.append(
     os.path.abspath("../backend")
 )
 
-from database import workouts_collection
-
 user_id = sys.argv[1]
 mp_pose = mp.solutions.pose
 
@@ -53,12 +51,15 @@ def calculate_angle(a, b, c):
 counter = 0
 stage = None
 min_angle = 180
-feedback = "Stand Straight"
+feedback = "Show Full Leg"
 start_time = time.time()
 
 while True:
 
     success, frame = cap.read()
+    
+    box_width = 380
+    box_height = 180
 
     if not success:
         break
@@ -123,17 +124,6 @@ while True:
 
             min_angle = min(min_angle, knee_angle)
 
-            # SHOW ANGLE
-            cv2.putText(
-                frame,
-                f"K:{int(knee_angle)} H:{int(hip_angle)}",
-                tuple(np.multiply(knee, [640, 480]).astype(int)),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.5,
-                (255, 255, 255),
-                2
-            )
-
             # SQUAT LOGIC
             if knee_angle > 165:
                 stage = "up"
@@ -151,30 +141,67 @@ while True:
                         counter += 1
                     
                     min_angle = 180
+                    
+        else:
+            feedback = "Show Full Leg"
 
-    # SHOW REPS
-
-    cv2.putText(
+    # Background
+    cv2.rectangle(
         frame,
-        f"Squats: {counter}",
-        (50, 50),
-        cv2.FONT_HERSHEY_SIMPLEX,
-        1,
-        (0, 255, 0),
+        (20,20),
+        (20 + box_width, 20 + box_height),
+        (25,25,25),
+        -1
+    )
+
+    # Border
+    cv2.rectangle(
+        frame,
+        (20,20),
+        (20 + box_width, 20 + box_height),
+        (173,255,47),
         2
     )
 
+    cv2.putText(
+        frame,
+        "SMARTFIT AI",
+        (35,55),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        0.8,
+        (173,255,47),
+        2
+    )
+
+    cv2.putText(
+        frame,
+        f"SQUATS: {counter}",
+        (35,115),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        1.6,
+        (173,255,47),
+        3
+    )
+    
+    if feedback == "Perfect Squat":
+        feedback_color = (0,255,0)
+
+    elif feedback == "Lower More":
+        feedback_color = (0,255,255)
+
+    else:
+        feedback_color = (0,165,255)
+        
     cv2.putText(
         frame,
         feedback,
-        (50, 100),
+        (35,165),
         cv2.FONT_HERSHEY_SIMPLEX,
-        1,
-        (0, 255, 255),
+        0.8,
+        feedback_color,
         2
     )
 
-    frame = cv2.resize(frame, (1280, 720))
     cv2.imshow("Workout", frame)
 
     if cv2.waitKey(1) & 0xFF == ord("q"):
@@ -182,6 +209,7 @@ while True:
 
 cap.release()
 cv2.destroyAllWindows()
+
 duration = int(time.time() - start_time)
 
 data = {
@@ -196,5 +224,3 @@ requests.post(
     "http://127.0.0.1:8000/save-workout",
     json=data
 )
-
-print("Workout Saved Successfully")

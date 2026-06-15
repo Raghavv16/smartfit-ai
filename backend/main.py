@@ -209,8 +209,6 @@ def signup(user: User):
         {"email": user.email}
     )
 
-    print(existing_user)
-
     if existing_user:
         return {
             "message": "Email already registered"
