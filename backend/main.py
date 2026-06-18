@@ -10,8 +10,44 @@ import sys
 import re
 import cloudinary.uploader
 import bcrypt
+from socket_server import sio, socket_app
 
 app = FastAPI()
+
+@sio.event
+async def camera_connected(sid):
+    print("Camera Connected")
+
+    await sio.emit(
+        "camera_status",
+        {"status": "connected"}
+    )
+    
+@sio.event
+async def offer(sid, data):
+    print("Offer Received")
+
+    await sio.emit(
+        "offer",
+        data
+    )
+    
+@sio.event
+async def answer(sid, data):
+    print("Answer Received")
+
+    await sio.emit(
+        "answer",
+        data
+    )
+    
+@sio.event
+async def candidate(sid, candidate):
+    await sio.emit(
+        "candidate",
+        candidate,
+        skip_sid=sid
+    )
 
 # CORS
 app.add_middleware(
@@ -433,3 +469,5 @@ def reset_goal(user_id: str):
     return {
         "message": "Progress Reset Successfully"
     }
+    
+app.mount("/socket.io", socket_app)
