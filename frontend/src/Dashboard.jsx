@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { Navigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import socket from "./socket";
+import { API_URL } from "./config";
 
 function Dashboard() {
 	const [workouts, setWorkouts] = useState([]);
@@ -29,7 +30,7 @@ function Dashboard() {
 		const fetchWorkouts = async () => {
 			try {
 				const response = await axios.get(
-					`http://127.0.0.1:8000/workouts/${userId}`
+					`${API_URL}/workouts/${userId}`
 				);
 
 				setWorkouts(response.data);
@@ -69,7 +70,7 @@ function Dashboard() {
 		const fetchCameraStatus = async () => {
 			try {
 				const response = await axios.get(
-					"http://127.0.0.1:8000/camera-status"
+					`${API_URL}/camera-status`
 				);
 				setCameraStatus(
 					response.data.status
@@ -118,7 +119,7 @@ function Dashboard() {
 					const fetchWorkouts = async () => {
 						try {
 							const response = await axios.get(
-								`http://127.0.0.1:8000/workouts/${userId}`
+								`${API_URL}/workouts/${userId}`
 							);
 							setWorkouts(response.data);
 

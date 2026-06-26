@@ -3,6 +3,7 @@ import axios from "axios";
 import WorkoutHistory from "./WorkoutHistory"; // ✅ ADD THIS
 import Navbar from "./ui/shared/Navbar";
 import { toast } from "sonner";
+import { API_URL } from "@/config";
 
 function History() {
 	const [workouts, setWorkouts] = useState([]);
@@ -13,7 +14,7 @@ function History() {
 		if (!userId) return;
 
 		axios
-			.get(`http://127.0.0.1:8000/workouts/${userId}`)
+			.get(`${API_URL}/workouts/${userId}`)
 			.then((res) => setWorkouts(res.data))
 			.catch((err) => {
 				console.log(err);

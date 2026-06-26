@@ -5,15 +5,6 @@ import time
 import requests
 from datetime import datetime
 
-mp_pose = mp.solutions.pose
-
-pose = mp_pose.Pose(
-    min_detection_confidence=0.5,
-    min_tracking_confidence=0.5
-)
-
-mp_draw = mp.solutions.drawing_utils
-
 counter = 0
 stage = None
 feedback = "Ready"
@@ -38,6 +29,15 @@ def display_loop():
     results = None
 
     window_created = False
+    
+    mp_pose = mp.solutions.pose
+
+    pose = mp_pose.Pose(
+        min_detection_confidence=0.5,
+        min_tracking_confidence=0.5
+    )
+
+    mp_draw = mp.solutions.drawing_utils
 
     while True:
         box_width = 360

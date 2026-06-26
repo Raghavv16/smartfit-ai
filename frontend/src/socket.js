@@ -1,7 +1,8 @@
 import { io } from "socket.io-client";
+import { SOCKET_URL } from "./config";
 
 const socket = io(
-    "http://192.168.29.213:8000",
+    SOCKET_URL,
     {
         transports: ["websocket"]
     }

@@ -6,6 +6,7 @@ import { Calendar, Ruler, Weight, Target, Pencil, Activity } from "lucide-react"
 import Navbar from "@/components/ui/shared/Navbar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
+import { API_URL } from "@/config";
 
 function Profile() {
 	const [user, setUser] = useState({});
@@ -24,7 +25,7 @@ function Profile() {
 		if (!userId) return;
 
 		axios
-			.get(`http://127.0.0.1:8000/profile/${userId}`)
+			.get(`${API_URL}/profile/${userId}`)
 			.then((res) => {
 				if (!res.data.message) {
 					setUser(res.data);
@@ -44,7 +45,7 @@ function Profile() {
 	const handleUpdate = async () => {
 		try {
 			const response = await axios.put(
-				`http://127.0.0.1:8000/profile/${userId}`,
+				`${API_URL}/profile/${userId}`,
 				editData
 			);
 
@@ -77,7 +78,7 @@ function Profile() {
 			formData.append("file", file);
 
 			const res = await axios.post(
-				`http://127.0.0.1:8000/upload-avatar/${userId}`,
+				`${API_URL}/upload-avatar/${userId}`,
 				formData
 			);
 

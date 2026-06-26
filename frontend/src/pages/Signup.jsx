@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
+import { API_URL } from "@/config";
 
 function Signup() {
 	const [name, setName] = useState("");
@@ -45,7 +46,7 @@ function Signup() {
 
 		try {
 			const response = await axios.post(
-				"http://127.0.0.1:8000/signup",
+				`${API_URL}/signup`,
 				{
 					name,
 					email,

@@ -6,15 +6,6 @@ import time
 from datetime import datetime
 import webrtc_receiver
 
-mp_pose = mp.solutions.pose
-
-pose = mp_pose.Pose(
-    min_detection_confidence=0.5,
-    min_tracking_confidence=0.5
-)
- 
-mp_draw = mp.solutions.drawing_utils
-
 # Function to calculate elbow angle 
 def calculate_angle(a, b, c):
     a = np.array(a)
@@ -41,8 +32,17 @@ def display_loop():
     counter = 0
     stage = None
     angle = 0
-    start_time = time.time()
     feedback = "Show Left Arm"
+    start_time = time.time()
+    
+    mp_pose = mp.solutions.pose
+
+    pose = mp_pose.Pose(
+        min_detection_confidence=0.5,
+        min_tracking_confidence=0.5
+    )
+    
+    mp_draw = mp.solutions.drawing_utils
 
     while True:
         success, frame = cap.read()
@@ -142,7 +142,7 @@ def display_loop():
 
         cv2.putText(
             frame, 
-            f'REPS: {counter}', 
+            f'Curls: {counter}', 
             (35, 115), 
             cv2.FONT_HERSHEY_SIMPLEX, 
             1.6, 

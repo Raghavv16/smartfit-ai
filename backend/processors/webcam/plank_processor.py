@@ -6,15 +6,6 @@ import time
 from datetime import datetime
 import webrtc_receiver
 
-mp_pose = mp.solutions.pose
-
-pose = mp_pose.Pose(
-    min_detection_confidence=0.5,
-    min_tracking_confidence=0.5
-)
-
-mp_draw = mp.solutions.drawing_utils
-
 def calculate_angle(a, b, c):
 
     a = np.array(a)
@@ -48,8 +39,16 @@ def display_loop():
     plank_start = None
     elapsed_time = 0
     feedback = "Show Full Body"
-
     start_time = time.time()
+    
+    mp_pose = mp.solutions.pose
+
+    pose = mp_pose.Pose(
+        min_detection_confidence=0.5,
+        min_tracking_confidence=0.5
+    )
+
+    mp_draw = mp.solutions.drawing_utils
 
     while True:
 

@@ -1,8 +1,3 @@
-from aiortc import (
-    RTCPeerConnection,
-    RTCSessionDescription
-)
-
 import threading
 
 peer_connection = None

@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dumbbell, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
+import { API_URL } from "@/config";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -17,7 +18,7 @@ function Login() {
   const handleLogin = async () => {
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/login",
+        `${API_URL}/login`,
         {
           email,
           password,

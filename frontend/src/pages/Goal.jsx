@@ -3,6 +3,7 @@ import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Navbar from "@/components/ui/shared/Navbar";
+import { API_URL } from "@/config";
 function Goal() {
   const [goal, setGoal] = useState(100);
   const [progress, setProgress] = useState(0);
@@ -11,7 +12,7 @@ function Goal() {
 
   useEffect(() => {
     axios
-      .get(`http://127.0.0.1:8000/goal/${userId}`)
+      .get(`${API_URL}/goal/${userId}`)
       .then((res) => {
         setGoal(res.data.workoutGoal);
         setProgress(res.data.currentProgress);
@@ -20,7 +21,7 @@ function Goal() {
 
   const saveGoal = async () => {
     await axios.put(
-      `http://127.0.0.1:8000/goal/${userId}`,
+      `${API_URL}/goal/${userId}`,
       {
         workoutGoal: Number(goal),
       }
@@ -36,7 +37,7 @@ function Goal() {
 
   return (
     
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-green-950  ">
+    <div className="min-h-screen bg-linear-to-br from-slate-950 via-slate-900 to-green-950  ">
              <Navbar/>
       <Card className="max-w-xl mx-auto bg-slate-900/70 border-slate-700 mt-50">
         <CardContent className="p-6">

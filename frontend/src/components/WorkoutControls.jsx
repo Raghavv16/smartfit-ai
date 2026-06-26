@@ -4,6 +4,7 @@ import { Dumbbell, Activity, Armchair, Timer, Zap, Smartphone } from "lucide-rea
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import QRCode from "react-qr-code";
+import { API_URL } from "@/config";
 
 function WorkoutControls({ refreshWorkouts, cameraStatus }) {
 	const [showQR, setShowQR] = useState(false);
@@ -44,7 +45,7 @@ function WorkoutControls({ refreshWorkouts, cameraStatus }) {
 			);
 
 			const response = await axios.get(
-				`http://127.0.0.1:8000/${exercise}/${camera}/${userId}`
+				`${API_URL}/${exercise}/${camera}/${userId}`
 			);
 
 			toast.dismiss(toastId);

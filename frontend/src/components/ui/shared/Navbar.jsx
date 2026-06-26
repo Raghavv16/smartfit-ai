@@ -5,6 +5,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "../popover";
 import { Avatar, AvatarFallback, AvatarImage } from "../avatar";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { API_URL } from "@/config";
 
 
 function Navbar() {
@@ -21,7 +22,7 @@ function Navbar() {
         if (!userId) return;
 
         axios
-            .get(`http://127.0.0.1:8000/profile/${userId}`)
+            .get(`${API_URL}/profile/${userId}`)
             .then((res) => setUser(res.data))
             .catch((err) => {
                 console.log(err);
@@ -29,7 +30,7 @@ function Navbar() {
             });
 
         axios
-            .get(`http://127.0.0.1:8000/goal/${userId}`)
+            .get(`${API_URL}/goal/${userId}`)
             .then((res) => {
                 setGoalData(res.data);
             })

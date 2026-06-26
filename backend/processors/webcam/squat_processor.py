@@ -6,15 +6,6 @@ import time
 from datetime import datetime
 import webrtc_receiver
 
-mp_pose = mp.solutions.pose
-
-pose = mp_pose.Pose(
-    min_detection_confidence=0.5,
-    min_tracking_confidence=0.5
-)
-
-mp_draw = mp.solutions.drawing_utils
-
 def calculate_angle(a, b, c):
 
     a = np.array(a)
@@ -50,6 +41,15 @@ def display_loop():
     min_angle = 180
     feedback = "Show Full Leg"
     start_time = time.time()
+    
+    mp_pose = mp.solutions.pose
+
+    pose = mp_pose.Pose(
+        min_detection_confidence=0.5,
+        min_tracking_confidence=0.5
+    )
+
+    mp_draw = mp.solutions.drawing_utils
 
     while True:
 
@@ -172,7 +172,7 @@ def display_loop():
 
         cv2.putText(
             frame,
-            f"SQUATS: {counter}",
+            f"Squats: {counter}",
             (35,115),
             cv2.FONT_HERSHEY_SIMPLEX,
             1.6,

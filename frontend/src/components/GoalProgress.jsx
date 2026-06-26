@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { API_URL } from "@/config";
 
 function GoalProgress() {
 	const [goal, setGoal] = useState(100);
@@ -9,7 +10,7 @@ function GoalProgress() {
 
 	useEffect(() => {
 		axios
-			.get(`http://127.0.0.1:8000/goal/${userId}`)
+			.get(`${API_URL}/goal/${userId}`)
 			.then((res) => {
 				setGoal(res.data.workoutGoal);
 				setProgress(res.data.currentProgress);
