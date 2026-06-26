@@ -7,7 +7,6 @@ import Profile from "./pages/Profile";
 import History from "./components/History";
 import Goal from "./pages/Goal";
 import MobileCamera from "./pages/MobileCamera";
-import VideoReceiver from "./pages/VideoReceiver";
 
 function App() {
 	return (
@@ -25,7 +24,6 @@ function App() {
 				<Route path="/history" element={<History />} />
 				<Route path="/goal" element={<Goal />} />
 				<Route path="/mobile-camera" element={<MobileCamera />} />
-				<Route path="/video-receiver" element={<VideoReceiver />} />
 			</Routes>
 		</BrowserRouter>
 	);

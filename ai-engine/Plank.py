@@ -204,7 +204,7 @@ while True:
     if feedback == "Perfect Plank":
         feedback_color = (0,255,0)
 
-    elif feedback == "Adjust Position":
+    elif feedback == "Adjust Elbows":
         feedback_color = (0,255,255)
 
     else:

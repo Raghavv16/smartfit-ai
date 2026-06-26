@@ -13,10 +13,12 @@ import GoalProgress from "./components/GoalProgress";
 import { toast } from "sonner";
 import { Navigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
+import socket from "./socket";
 
 function Dashboard() {
 	const [workouts, setWorkouts] = useState([]);
 	const [loading, setLoading] = useState(true);
+	const [cameraStatus, setCameraStatus] = useState("disconnected");
 
 	const userId = localStorage.getItem("userId");
 
@@ -45,6 +47,40 @@ function Dashboard() {
 
 		fetchWorkouts();
 	}, [userId]);
+
+	useEffect(() => {
+
+		socket.on(
+			"camera_status",
+			(data) => {
+				setCameraStatus(
+					data.status
+				);
+			}
+		);
+
+		return () => {
+			socket.off("camera_status");
+		};
+
+	}, []);
+
+	useEffect(() => {
+		const fetchCameraStatus = async () => {
+			try {
+				const response = await axios.get(
+					"http://127.0.0.1:8000/camera-status"
+				);
+				setCameraStatus(
+					response.data.status
+				);
+			} catch (error) {
+				console.log(error);
+			}
+		};
+		
+		fetchCameraStatus();
+	}, []);
 
 	// ❌ If not logged in
 	if (!userId) {
@@ -76,6 +112,7 @@ function Dashboard() {
 			<GoalProgress />
 
 			<WorkoutControls
+				cameraStatus={cameraStatus}
 				refreshWorkouts={() => {
 					// optional manual refresh
 					const fetchWorkouts = async () => {

@@ -1,22 +1,42 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from database import workouts_collection, users_collection
 from bson import ObjectId
 from bson.errors import InvalidId
 from utils.cloudinary import cloudinary
-import subprocess
-import sys
+from socket_server import sio, socket_app
+from fastapi.responses import Response
+from webrtc_receiver import (peer_connection, latest_frame)
+from aiortc import (RTCSessionDescription, RTCPeerConnection, RTCIceCandidate)
+from aiortc.sdp import candidate_from_sdp
+from processors.phone.bicep_curl_processor import display_loop as bicep_loop
+from processors.phone.squat_processor import display_loop as squat_loop
+from processors.phone.pushup_processor import display_loop as pushup_loop
+from processors.phone.plank_processor import display_loop as plank_loop
+from processors.phone.jumping_jacks_processor import display_loop as jumping_jacks_loop
+import threading
+import webrtc_receiver
 import re
 import cloudinary.uploader
 import bcrypt
-from socket_server import sio, socket_app
+import cv2
+import numpy as np
+import base64
+import time
+from processors.webcam.bicep_curl_processor import display_loop as webcam_bicep_loop
+from processors.webcam.squat_processor import display_loop as webcam_squat_loop
+from processors.webcam.pushup_processor import display_loop as webcam_pushup_loop
+from processors.webcam.plank_processor import display_loop as webcam_plank_loop
+from processors.webcam.jumping_jacks_processor import display_loop as webcam_jumping_jacks_loop
+
+latest_frame = None
 
 app = FastAPI()
 
 @sio.event
 async def camera_connected(sid):
-    print("Camera Connected")
+    webrtc_receiver.phone_connected = True
 
     await sio.emit(
         "camera_status",
@@ -24,13 +44,104 @@ async def camera_connected(sid):
     )
     
 @sio.event
-async def offer(sid, data):
-    print("Offer Received")
+async def camera_disconnected(sid):
+    webrtc_receiver.phone_connected = False
 
     await sio.emit(
-        "offer",
-        data
+        "camera_status",
+        {"status":"disconnected"}
     )
+    
+@sio.event
+async def disconnect(sid):
+    webrtc_receiver.phone_connected = False
+
+    await sio.emit(
+        "camera_status",
+        {"status": "disconnected"}
+    )
+    
+@app.get("/camera-status")
+def camera_status():
+
+    return {
+        "status": (
+            "connected"
+            if webrtc_receiver.phone_connected
+            else "disconnected"
+        )
+    }
+    
+@sio.event
+async def offer(sid, data):
+    webrtc_receiver.peer_connection = RTCPeerConnection()
+
+    peer_connection = webrtc_receiver.peer_connection
+    
+    @peer_connection.on("track")
+    async def on_track(track):
+        print(
+            "TRACK RECEIVED:",
+            track.kind
+        )
+        
+        if track.kind == "video":
+            
+            while True:
+                frame = await track.recv()
+
+                img = frame.to_ndarray(format="bgr24")
+                
+                if img.shape != getattr(
+                    webrtc_receiver,
+                    "last_shape",
+                    None
+                ):
+                    print(
+                        time.strftime("%H:%M:%S"),
+                        "NEW SHAPE:",
+                        img.shape
+                    )
+
+                    webrtc_receiver.last_shape = img.shape
+                
+                with webrtc_receiver.frame_lock:
+                    webrtc_receiver.latest_frame = img
+
+    print("New Peer Connection Created")
+
+    print("Offer Received")
+
+    offer = RTCSessionDescription(
+        sdp=data["sdp"],
+        type=data["type"]
+    )
+
+    print("Offer Parsed")
+
+    await peer_connection.setRemoteDescription(
+        offer
+    )
+
+    print("Remote Description Set")
+    
+    answer = await peer_connection.createAnswer()
+
+    await peer_connection.setLocalDescription(
+        answer
+    )
+
+    print("Answer Created")
+    
+    await sio.emit(
+        "answer",
+        {
+            "sdp": peer_connection.localDescription.sdp,
+            "type": peer_connection.localDescription.type
+        }
+    )
+
+    print("Answer Sent To Phone")
     
 @sio.event
 async def answer(sid, data):
@@ -43,11 +154,25 @@ async def answer(sid, data):
     
 @sio.event
 async def candidate(sid, candidate):
-    await sio.emit(
-        "candidate",
-        candidate,
-        skip_sid=sid
+
+    print("Candidate Received")
+
+    if webrtc_receiver.peer_connection is None:
+        return
+
+    rtc_candidate = candidate_from_sdp(
+        candidate["candidate"]
+        .replace("candidate:", "")
     )
+
+    rtc_candidate.sdpMid = candidate["sdpMid"]
+    rtc_candidate.sdpMLineIndex = candidate["sdpMLineIndex"]
+
+    await webrtc_receiver.peer_connection.addIceCandidate(
+        rtc_candidate
+    )
+
+    print("Candidate Added")
 
 # CORS
 app.add_middleware(
@@ -95,6 +220,96 @@ def validate_password(password):
 
     return re.match(pattern, password)
 
+@app.post("/frame")
+async def receive_frame(request: Request):
+
+    global latest_frame
+    
+    data = await request.json()
+
+    frame_data = data["frame"]
+
+    encoded = frame_data.split(",")[1]
+
+    image_bytes = base64.b64decode(encoded)
+
+    image_array = np.frombuffer(
+        image_bytes,
+        dtype=np.uint8
+    )
+
+    latest_frame = cv2.imdecode(
+        image_array,
+        cv2.IMREAD_COLOR
+    )
+
+    return {
+        "success": True
+    }
+    
+@app.get("/latest-frame-status")
+def latest_frame_status():
+
+    global latest_frame
+
+    return {
+        "available": latest_frame is not None
+    }
+    
+@app.get("/latest-frame-shape")
+def latest_frame_shape():
+
+    global latest_frame
+
+    if latest_frame is None:
+        return {
+            "message": "No Frame"
+        }
+
+    return {
+        "shape": latest_frame.shape
+    }
+    
+@app.get("/latest-frame")
+def get_latest_frame():
+
+    global latest_frame
+
+    if latest_frame is None:
+        return {
+            "message": "No Frame"
+        }
+
+    _, buffer = cv2.imencode(
+        ".jpg",
+        latest_frame
+    )
+
+    return Response(
+        content=buffer.tobytes(),
+        media_type="image/jpeg"
+    )
+    
+@app.get("/webrtc-frame-shape")
+def webrtc_frame_shape():
+
+    if webrtc_receiver.latest_frame is None:
+        return {
+            "message": "No Frame"
+        }
+
+    return {
+        "shape":
+        webrtc_receiver.latest_frame.shape
+    }
+    
+@app.get("/webrtc-frame-status")
+def webrtc_frame_status():
+
+    return {
+        "has_frame":
+        webrtc_receiver.latest_frame is not None
+    }
 
 # Home Route
 @app.get("/")
@@ -109,82 +324,123 @@ def home():
 # AI EXERCISE ROUTES
 # -------------------------------
 
-@app.get("/bicep/{user_id}")
+@app.get("/bicep/webcam/{user_id}")
 def start_bicep(user_id: str):
 
-    subprocess.run([
-        sys.executable,
-        "../ai-engine/LeftBicepCurl.py",
-        user_id
-    ])
+    webrtc_receiver.workout_active = True
+    webrtc_receiver.current_user_id = user_id
+
+    if (
+        webrtc_receiver.display_thread is None
+        or
+        not webrtc_receiver.display_thread.is_alive()
+    ):
+        webrtc_receiver.display_thread = threading.Thread(
+            target=webcam_bicep_loop,
+            daemon=True
+        )
+        webrtc_receiver.display_thread.start()
 
     return {
-        "message": "Bicep Curl Completed Successfully",
+        "message": "Bicep Curl Started",
         "exercise": "Bicep Curl"
     }
 
-
-@app.get("/squat/{user_id}")
+@app.get("/squat/webcam/{user_id}")
 def start_squat(user_id:str):
 
-    subprocess.run([
-        sys.executable,
-        "../ai-engine/Squat.py",
-        user_id
-    ])
+    webrtc_receiver.workout_active = True
+    webrtc_receiver.current_user_id = user_id
+
+    if (
+        webrtc_receiver.display_thread is None
+        or
+        not webrtc_receiver.display_thread.is_alive()
+    ):
+
+        webrtc_receiver.display_thread = threading.Thread(
+            target=webcam_squat_loop,
+            daemon=True
+        )
+
+        webrtc_receiver.display_thread.start()
 
     return {
-        "message": "Squat Completed Successfully",
+        "message": "Squat Started",
         "exercise": "Squat"
     }
 
+@app.get("/pushup/webcam/{user_id}")
+def start_pushup_webcam(user_id: str):
 
-@app.get("/pushup/{user_id}")
-def start_pushup(user_id: str):
+    webrtc_receiver.workout_active = True
+    webrtc_receiver.current_user_id = user_id
 
-    subprocess.run([
-        sys.executable,
-        "../ai-engine/Pushup.py",
-        user_id
-    ])
+    if (
+        webrtc_receiver.display_thread is None
+        or
+        not webrtc_receiver.display_thread.is_alive()
+    ):
+
+        webrtc_receiver.display_thread = threading.Thread(
+            target=webcam_pushup_loop,
+            daemon=True
+        )
+
+        webrtc_receiver.display_thread.start()
 
     return {
-        "message": "Pushup Completed Successfully",
+        "message": "Pushup Started",
         "exercise": "Pushup"
-        }
+    }
 
+@app.get("/plank/webcam/{user_id}")
+def start_plank_webcam(user_id: str):
 
+    webrtc_receiver.workout_active = True
+    webrtc_receiver.current_user_id = user_id
 
-@app.get("/plank/{user_id}")
-def start_plank(user_id:str):
+    if (
+        webrtc_receiver.display_thread is None
+        or
+        not webrtc_receiver.display_thread.is_alive()
+    ):
 
-    subprocess.run([
-        sys.executable,
-        "../ai-engine/Plank.py",
-        user_id
-    ])
+        webrtc_receiver.display_thread = threading.Thread(
+            target=webcam_plank_loop,
+            daemon=True
+        )
+
+        webrtc_receiver.display_thread.start()
 
     return {
-        "message": "Plank Completed Successfully",
+        "message": "Plank Started",
         "exercise": "Plank"
     }
 
+@app.get("/jumping-jacks/webcam/{user_id}")
+def start_jumping_jacks_webcam(user_id: str):
 
+    webrtc_receiver.workout_active = True
+    webrtc_receiver.current_user_id = user_id
 
-@app.get("/jumping-jacks/{user_id}")
-def start_jumping_jacks(user_id:str):
+    if (
+        webrtc_receiver.display_thread is None
+        or
+        not webrtc_receiver.display_thread.is_alive()
+    ):
 
-    subprocess.run([
-        sys.executable,
-        "../ai-engine/JumpingJacks.py",
-        user_id
-    ])
+        webrtc_receiver.display_thread = threading.Thread(
+            target=webcam_jumping_jacks_loop,
+            daemon=True
+        )
+
+        webrtc_receiver.display_thread.start()
 
     return {
-        "message": "Jumping Jacks Completed Successfully",
+        "message": "Jumping Jacks Started",
         "exercise": "Jumping Jacks"
     }
-
 
 # -------------------------------
 # DATABASE ROUTES
@@ -470,4 +726,154 @@ def reset_goal(user_id: str):
         "message": "Progress Reset Successfully"
     }
     
+@app.get("/bicep/phone/{user_id}")
+def start_bicep_curl(user_id: str):
+    if not webrtc_receiver.phone_connected:
+
+        raise HTTPException(
+            status_code=409,
+            detail="Please connect your phone camera first."
+        )
+
+    webrtc_receiver.workout_active = True
+    webrtc_receiver.current_user_id = user_id
+
+    if (
+        webrtc_receiver.display_thread is None
+        or
+        not webrtc_receiver.display_thread.is_alive()
+    ):
+
+        webrtc_receiver.display_thread = threading.Thread(
+            target=bicep_loop,
+            daemon=True
+        )
+
+        webrtc_receiver.display_thread.start()
+
+    return {
+        "message": "Bicep Curl Started",
+        "exercise": "Bicep Curl"
+    }
+    
+@app.get("/squat/phone/{user_id}")
+def start_squat_phone(user_id: str):
+    if not webrtc_receiver.phone_connected:
+
+        raise HTTPException(
+            status_code=409,
+            detail="Please connect your phone camera first."
+        )
+
+    webrtc_receiver.workout_active = True
+    webrtc_receiver.current_user_id = user_id
+
+    if (
+        webrtc_receiver.display_thread is None
+        or
+        not webrtc_receiver.display_thread.is_alive()
+    ):
+
+        webrtc_receiver.display_thread = threading.Thread(
+            target=squat_loop,
+            daemon=True
+        )
+
+        webrtc_receiver.display_thread.start()
+
+    return {
+        "message": "Squat Started",
+        "exercise": "Squat"
+    }
+    
+@app.get("/pushup/phone/{user_id}")
+def start_pushup(user_id: str):
+    if not webrtc_receiver.phone_connected:
+
+        raise HTTPException(
+            status_code=409,
+            detail="Please connect your phone camera first."
+        )
+
+    webrtc_receiver.workout_active = True
+    webrtc_receiver.current_user_id = user_id
+
+    if (
+        webrtc_receiver.display_thread is None
+        or
+        not webrtc_receiver.display_thread.is_alive()
+    ):
+
+        webrtc_receiver.display_thread = threading.Thread(
+            target=pushup_loop,
+            daemon=True
+        )
+
+        webrtc_receiver.display_thread.start()
+
+    return {
+        "message": "Pushup Started",
+        "exercise": "Pushup"
+    }
+    
+@app.get("/plank/phone/{user_id}")
+def start_plank_phone(user_id: str):
+    if not webrtc_receiver.phone_connected:
+
+        raise HTTPException(
+            status_code=409,
+            detail="Please connect your phone camera first."
+        )
+
+    webrtc_receiver.workout_active = True
+    webrtc_receiver.current_user_id = user_id
+
+    if (
+        webrtc_receiver.display_thread is None
+        or
+        not webrtc_receiver.display_thread.is_alive()
+    ):
+
+        webrtc_receiver.display_thread = threading.Thread(
+            target=plank_loop,
+            daemon=True
+        )
+
+        webrtc_receiver.display_thread.start()
+
+    return {
+        "message": "Plank Started",
+        "exercise": "Plank"
+    }
+    
+@app.get("/jumping-jacks/phone/{user_id}")
+def start_jumping_jacks_phone(user_id: str):
+    if not webrtc_receiver.phone_connected:
+
+        raise HTTPException(
+            status_code=409,
+            detail="Please connect your phone camera first."
+        )
+
+    webrtc_receiver.workout_active = True
+    webrtc_receiver.current_user_id = user_id
+
+    if (
+        webrtc_receiver.display_thread is None
+        or
+        not webrtc_receiver.display_thread.is_alive()
+    ):
+
+        webrtc_receiver.display_thread = threading.Thread(
+            target=jumping_jacks_loop,
+            daemon=True
+        )
+
+        webrtc_receiver.display_thread.start()
+
+    return {
+        "message": "Jumping Jacks Started",
+        "exercise": "Jumping Jacks"
+    }
+
 app.mount("/socket.io", socket_app)

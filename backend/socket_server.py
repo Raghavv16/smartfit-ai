@@ -1,4 +1,5 @@
 import socketio
+import webrtc_receiver
 
 sio = socketio.AsyncServer(
     async_mode="asgi",
@@ -10,6 +11,19 @@ socket_app = socketio.ASGIApp(
     socketio_path="socket.io"
     )
 
+@sio.event
+async def camera_connected(sid):
+
+    print("Phone Connected")
+
+    webrtc_receiver.phone_connected = True
+
+    await sio.emit(
+        "camera_status",
+        {
+            "status": "connected"
+        }
+    )
 
 @sio.event
 async def connect(sid, environ):
@@ -18,4 +32,14 @@ async def connect(sid, environ):
 
 @sio.event
 async def disconnect(sid):
+
     print("Disconnected:", sid)
+
+    webrtc_receiver.phone_connected = False
+
+    await sio.emit(
+        "camera_status",
+        {
+            "status": "disconnected"
+        }
+    )

@@ -18,16 +18,24 @@ function MobileCamera() {
             try {
                 const stream =
                     await navigator.mediaDevices.getUserMedia({
-                        video: true,
+                        video: {
+                            facingMode: "environment",
+                            width: { exact: 1280 },
+                            height: { exact: 720 },
+                            frameRate: { ideal: 30, max: 30 }
+                        }
                     });
+                await stream.getVideoTracks()[0].applyConstraints({
+                    width: 1280,
+                    height: 720
+                });
 
                 streamRef.current = stream;
 
                 videoRef.current.srcObject = stream;
 
             } catch (err) {
-                console.log(err);
-                alert(err.message);
+                alert("Unable to access camera");
             }
         };
 
@@ -37,8 +45,20 @@ function MobileCamera() {
             await peerRef.current.setRemoteDescription(answer);
         });
 
+        socket.on("candidate", async (candidate) => {
+            if (peerRef.current) {
+                await peerRef.current.addIceCandidate(candidate);
+            }
+        });
+
         return () => {
+            socket.emit("camera_disconnected");
+            peerRef.current?.close();
+            peerRef.current = null;
+            streamRef.current?.getTracks().forEach(track => track.stop());
+            streamRef.current = null;
             socket.off("answer");
+            socket.off("candidate");
         };
 
     }, []);
@@ -63,7 +83,15 @@ function MobileCamera() {
                 </div>
 
                 <Button
-                    onClick={() => {
+                    onClick={async () => {
+                        if (connected) {
+                            peerRef.current?.close();
+                            peerRef.current = null;
+                            socket.emit("camera_disconnected");
+                            setConnected(false);
+                            return;
+                        }
+
                         setConnected(true);
 
                         peerRef.current = new RTCPeerConnection({
@@ -74,19 +102,26 @@ function MobileCamera() {
                             ]
                         });
 
-                        socket.on("candidate", async (candidate) => {
-                            if (peerRef.current) {
-                                await peerRef.current.addIceCandidate(candidate);
-                            }
-                        }
-                        );
+                        const videoTrack =
+                            streamRef.current.getVideoTracks()[0];
 
-                        streamRef.current?.getTracks().forEach(track => {
+                        const sender =
                             peerRef.current.addTrack(
-                                track,
+                                videoTrack,
                                 streamRef.current
                             );
-                        });
+
+                        const params =
+                            sender.getParameters();
+
+                        if (!params.encodings) {
+                            params.encodings = [{}];
+                        }
+
+                        params.encodings[0].scaleResolutionDownBy = 1;
+                        params.encodings[0].maxBitrate = 5000000;
+
+                        await sender.setParameters(params);
 
                         peerRef.current.onicecandidate = (event) => {
                             if (event.candidate) {
@@ -96,21 +131,48 @@ function MobileCamera() {
 
                         const createOffer = async () => {
 
-                            const offer = await peerRef.current.createOffer();
+                            await new Promise(
+                                resolve => setTimeout(resolve, 3000)
+                            );
 
-                            await peerRef.current.setLocalDescription(offer);
+                            const sender =
+                                peerRef.current.getSenders()[0];
 
-                            socket.emit("offer", offer);
+                            const params =
+                                sender.getParameters();
+
+                            if (!params.encodings) {
+                                params.encodings = [{}];
+                            }
+
+                            params.encodings[0].maxBitrate = 10000000;
+
+                            await sender.setParameters(
+                                params
+                            );
+
+                            const offer = await peerRef.current.createOffer({
+                                offerToReceiveVideo: false,
+                                offerToReceiveAudio: false
+                            });
+
+                            await peerRef.current.setLocalDescription(
+                                offer
+                            );
+
+                            socket.emit(
+                                "offer",
+                                offer
+                            );
                         };
 
                         createOffer();
 
                         socket.emit("camera_connected");
                     }}
-                    disabled={connected}
                     className="mt-6 w-full bg-emerald-500 hover:bg-emerald-600"
                 >
-                    {connected ? "Camera Connected" : "Connect Camera"}
+                    {connected ? "Disconnect Camera" : "Connect Camera"}
                 </Button>
 
                 <div className="mt-8">
@@ -130,7 +192,7 @@ function MobileCamera() {
                             : "bg-yellow-500/20 text-yellow-400"
                             }`}
                     >
-                        Status: {connected ? "🟢 Camera Connected" : "🟡 Ready To Connect"}
+                        Status: {connected ? "🟢 Connected" : "🟡 Ready To Connect"}
                     </span>
                 </div>
             </div>

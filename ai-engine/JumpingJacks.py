@@ -11,11 +11,7 @@ sys.path.append(
     os.path.abspath("../backend")
 )
 
-from database import workouts_collection
-
 user_id = sys.argv[1]
-
-print("User ID:", user_id)
 mp_pose = mp.solutions.pose
 
 pose = mp_pose.Pose(
@@ -118,11 +114,14 @@ while True:
             ):
                 counter += 1
                 stage = "open"
+                
+        else:
+            feedback = "Ready"
 
     # DISPLAY
     cv2.putText(
         frame,
-        f"Jumping Jacks: {counter}",
+        f"Reps: {counter}",
         (50, 50),
         cv2.FONT_HERSHEY_SIMPLEX,
         1,
