@@ -4,7 +4,12 @@ import mediapipe as mp
 import numpy as np
 import time
 import requests
+import os
 from datetime import datetime
+from dotenv import load_dotenv
+
+load_dotenv()
+BACKEND_URL = os.getenv("BACKEND_URL")
 
 counter = 0
 stage = None
@@ -268,7 +273,7 @@ def display_loop():
             }
 
             requests.post(
-                "http://127.0.0.1:8000/save-workout",
+                f"{BACKEND_URL}/save-workout",
                 json=data
             )
 

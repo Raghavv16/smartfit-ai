@@ -4,7 +4,12 @@ import numpy as np
 import requests
 import time
 from datetime import datetime
+import os
 import webrtc_receiver
+from dotenv import load_dotenv
+
+load_dotenv()
+BACKEND_URL = os.getenv("BACKEND_URL")
 
 def calculate_angle(a, b, c):
 
@@ -217,7 +222,7 @@ def display_loop():
     }
 
     requests.post(
-        "http://127.0.0.1:8000/save-workout",
+        f"{BACKEND_URL}/save-workout",
         json=data
     )
 
