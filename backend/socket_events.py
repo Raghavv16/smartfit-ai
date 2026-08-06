@@ -1,6 +1,7 @@
 from aiortc import (RTCPeerConnection, RTCSessionDescription)
 from aiortc.sdp import candidate_from_sdp
 from socket_server import sio
+from processed_video_track import ProcessedVideoTrack
 import webrtc_receiver
 
 async def emit_camera_status(status):
@@ -30,6 +31,8 @@ async def disconnect(sid):
 async def offer(sid, data):
     peer_connection = RTCPeerConnection()
     webrtc_receiver.peer_connection = peer_connection
+    processed_track = ProcessedVideoTrack()
+    peer_connection.addTrack(processed_track)
     
     @peer_connection.on("track")
     async def on_track(track):

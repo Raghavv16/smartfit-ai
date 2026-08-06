@@ -251,7 +251,8 @@ def display_loop():
             2
         )
         
-        cv2.imshow("Workout", frame)
+        with webrtc_receiver.processed_frame_lock:
+            webrtc_receiver.processed_frame = frame.copy()
 
         if cv2.waitKey(1) & 0xFF == ord("q"):
 
