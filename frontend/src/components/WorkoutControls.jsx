@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import QRCode from "react-qr-code";
 import { API_URL } from "@/config";
 
-function WorkoutControls({ refreshWorkouts, cameraStatus }) {
+function WorkoutControls({ refreshWorkouts, cameraStatus, onWorkoutStart, onWorkoutStop }) {
 	const [showQR, setShowQR] = useState(false);
 	const [showCameraChoice, setShowCameraChoice] = useState(false);
 	const [selectedExercise, setSelectedExercise] = useState("");
@@ -51,6 +51,8 @@ function WorkoutControls({ refreshWorkouts, cameraStatus }) {
 			toast.dismiss(toastId);
 
 			toast.success(response.data.message);
+
+			onWorkoutStart();
 
 			refreshWorkouts();
 

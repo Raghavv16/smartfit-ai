@@ -136,3 +136,12 @@ def start_phone_workout(exercise: str, user_id: str):
         "message": f"{exercise_name} Started",
         "exercise": exercise_name
     }
+    
+@router.post("/stop-workout")
+def stop_workout():
+
+    webrtc_receiver.workout_active = False
+
+    return {
+        "message": "Workout stopped"
+    }

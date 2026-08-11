@@ -152,7 +152,7 @@ function MobileCamera() {
                             );
 
                             const offer = await peerRef.current.createOffer({
-                                offerToReceiveVideo: false,
+                                offerToReceiveVideo: true,
                                 offerToReceiveAudio: false
                             });
 

@@ -55,8 +55,6 @@ def display_loop():
     frame_count = 0
     results = None
 
-    window_created = False
-    
     mp_pose = mp.solutions.pose
 
     pose = mp_pose.Pose(
@@ -66,7 +64,7 @@ def display_loop():
 
     mp_draw = mp.solutions.drawing_utils
 
-    while True:
+    while webrtc_receiver.workout_active:
         box_width = 360
         box_height = 180
 
@@ -75,27 +73,6 @@ def display_loop():
 
         if frame is None:
             continue
-        
-        if not window_created:
-
-            cv2.namedWindow(
-                "Workout",
-                cv2.WINDOW_NORMAL
-            )
-
-            cv2.resizeWindow(
-                "Workout",
-                1280,
-                720
-            )
-
-            cv2.setWindowProperty(
-                "Workout",
-                cv2.WND_PROP_TOPMOST,
-                1
-            )
-
-            window_created = True
         
         frame = cv2.rotate(
             frame,
@@ -253,32 +230,56 @@ def display_loop():
         
         with webrtc_receiver.processed_frame_lock:
             webrtc_receiver.processed_frame = frame.copy()
+            
+    duration = int(
+        time.time() - workout_start_time
+    )
 
-        if cv2.waitKey(1) & 0xFF == ord("q"):
+    data = {
+        "userId": webrtc_receiver.current_user_id,
+        "exercise": "Pushup",
+        "reps": counter,
+        "duration": duration,
+        "date": datetime.now().isoformat()
+    }
 
-            duration = int(
-                time.time() - workout_start_time
-            )
+    requests.post(
+        f"{BACKEND_URL}/save-workout",
+        json=data
+    )
 
-            data = {
-                "userId": webrtc_receiver.current_user_id,
-                "exercise": "Pushup",
-                "reps": counter,
-                "duration": duration,
-                "date": datetime.now().isoformat()
-            }
+    webrtc_receiver.workout_active = False
 
-            requests.post(
-                f"{BACKEND_URL}/save-workout",
-                json=data
-            )
+    with webrtc_receiver.processed_frame_lock:
+        webrtc_receiver.processed_frame = None
 
-            print(
-                "Workout Saved Successfully"
-            )
+    webrtc_receiver.workout_data["running"] = False
 
-            webrtc_receiver.workout_active = False
+        # if cv2.waitKey(1) & 0xFF == ord("q"):
 
-            cv2.destroyAllWindows()
+        #     duration = int(
+        #         time.time() - workout_start_time
+        #     )
 
-            return
+        #     data = {
+        #         "userId": webrtc_receiver.current_user_id,
+        #         "exercise": "Pushup",
+        #         "reps": counter,
+        #         "duration": duration,
+        #         "date": datetime.now().isoformat()
+        #     }
+
+        #     requests.post(
+        #         f"{BACKEND_URL}/save-workout",
+        #         json=data
+        #     )
+
+        #     print(
+        #         "Workout Saved Successfully"
+        #     )
+
+        #     webrtc_receiver.workout_active = False
+
+        #     cv2.destroyAllWindows()
+
+        #     return

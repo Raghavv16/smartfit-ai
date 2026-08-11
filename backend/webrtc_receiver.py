@@ -1,6 +1,7 @@
 import threading
 
 peer_connection = None
+viewer_peer_connection = None
 latest_frame = None
 workout_active = False
 current_user_id = None

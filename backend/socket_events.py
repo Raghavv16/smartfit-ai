@@ -92,3 +92,65 @@ async def candidate(sid, candidate):
     rtc_candidate.sdpMLineIndex = candidate["sdpMLineIndex"]
 
     await webrtc_receiver.peer_connection.addIceCandidate(rtc_candidate)
+    
+@sio.event
+async def viewer_offer(sid, data):
+
+    viewer_peer_connection = RTCPeerConnection()
+
+    webrtc_receiver.viewer_peer_connection = (
+        viewer_peer_connection
+    )
+
+    processed_track = ProcessedVideoTrack()
+
+    viewer_peer_connection.addTrack(
+        processed_track
+    )
+
+    offer = RTCSessionDescription(
+        sdp=data["sdp"],
+        type=data["type"]
+    )
+
+    await viewer_peer_connection.setRemoteDescription(
+        offer
+    )
+
+    answer = await viewer_peer_connection.createAnswer()
+
+    await viewer_peer_connection.setLocalDescription(
+        answer
+    )
+
+    await sio.emit(
+        "viewer_answer",
+        {
+            "sdp": viewer_peer_connection.localDescription.sdp,
+            "type": viewer_peer_connection.localDescription.type
+        },
+        to=sid
+    )
+    
+@sio.event
+async def viewer_candidate(sid, candidate):
+
+    if webrtc_receiver.viewer_peer_connection is None:
+        return
+
+    rtc_candidate = candidate_from_sdp(
+        candidate["candidate"].replace(
+            "candidate:",
+            ""
+        )
+    )
+
+    rtc_candidate.sdpMid = candidate["sdpMid"]
+
+    rtc_candidate.sdpMLineIndex = (
+        candidate["sdpMLineIndex"]
+    )
+
+    await webrtc_receiver.viewer_peer_connection.addIceCandidate(
+        rtc_candidate
+    )
