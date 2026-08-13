@@ -17,22 +17,33 @@ async def emit_camera_status(status):
 
 @sio.event
 async def camera_connected(sid):
+    
+    webrtc_receiver.phone_sid = sid
+    
     await emit_camera_status("connected")
     
 @sio.event
 async def camera_disconnected(sid):
-    await emit_camera_status("disconnected")
+
+    if sid == webrtc_receiver.phone_sid:
+
+        webrtc_receiver.phone_sid = None
+
+        await emit_camera_status("disconnected")
     
 @sio.event
 async def disconnect(sid):
-    await emit_camera_status("disconnected")
+
+    if sid == webrtc_receiver.phone_sid:
+
+        webrtc_receiver.phone_sid = None
+
+        await emit_camera_status("disconnected")
     
 @sio.event
 async def offer(sid, data):
     peer_connection = RTCPeerConnection()
     webrtc_receiver.peer_connection = peer_connection
-    processed_track = ProcessedVideoTrack()
-    peer_connection.addTrack(processed_track)
     
     @peer_connection.on("track")
     async def on_track(track):

@@ -49,21 +49,28 @@ EXERCISE_NAMES = {
 
 def start_workout(user_id: str, processor):
 
+    if (
+        webrtc_receiver.display_thread is not None
+        and
+        webrtc_receiver.display_thread.is_alive()
+    ):
+        raise HTTPException(
+            status_code=409,
+            detail="A workout is already running."
+        )
+
     webrtc_receiver.workout_active = True
     webrtc_receiver.current_user_id = user_id
 
-    if (
-        webrtc_receiver.display_thread is None
-        or
-        not webrtc_receiver.display_thread.is_alive()
-    ):
+    with webrtc_receiver.processed_frame_lock:
+        webrtc_receiver.processed_frame = None
 
-        webrtc_receiver.display_thread = threading.Thread(
-            target=processor,
-            daemon=True
-        )
+    webrtc_receiver.display_thread = threading.Thread(
+        target=processor,
+        daemon=True
+    )
 
-        webrtc_receiver.display_thread.start()
+    webrtc_receiver.display_thread.start()
         
 def check_phone_connected():
 

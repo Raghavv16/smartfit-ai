@@ -254,32 +254,3 @@ def display_loop():
         webrtc_receiver.processed_frame = None
 
     webrtc_receiver.workout_data["running"] = False
-
-        # if cv2.waitKey(1) & 0xFF == ord("q"):
-
-        #     duration = int(
-        #         time.time() - workout_start_time
-        #     )
-
-        #     data = {
-        #         "userId": webrtc_receiver.current_user_id,
-        #         "exercise": "Pushup",
-        #         "reps": counter,
-        #         "duration": duration,
-        #         "date": datetime.now().isoformat()
-        #     }
-
-        #     requests.post(
-        #         f"{BACKEND_URL}/save-workout",
-        #         json=data
-        #     )
-
-        #     print(
-        #         "Workout Saved Successfully"
-        #     )
-
-        #     webrtc_receiver.workout_active = False
-
-        #     cv2.destroyAllWindows()
-
-        #     return
