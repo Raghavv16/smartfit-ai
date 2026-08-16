@@ -1,8 +1,34 @@
-from aiortc import (RTCPeerConnection, RTCSessionDescription)
+from aiortc import (
+    RTCPeerConnection, 
+    RTCSessionDescription, 
+    RTCConfiguration, 
+    RTCIceServer
+)
 from aiortc.sdp import candidate_from_sdp
 from socket_server import sio
 from processed_video_track import ProcessedVideoTrack
 import webrtc_receiver
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+TURN_URL = os.getenv("TURN_URL")
+TURN_USERNAME = os.getenv("TURN_USERNAME")
+TURN_CREDENTIAL = os.getenv("TURN_CREDENTIAL")
+
+ice_config = RTCConfiguration(
+    iceServers=[
+        RTCIceServer(
+            urls="stun:stun.relay.metered.ca:80"
+        ),
+        RTCIceServer(
+            urls=TURN_URL,
+            username=TURN_USERNAME,
+            credential=TURN_CREDENTIAL
+        )
+    ]
+)
 
 async def emit_camera_status(status):
 
@@ -42,7 +68,9 @@ async def disconnect(sid):
     
 @sio.event
 async def offer(sid, data):
-    peer_connection = RTCPeerConnection()
+    peer_connection = RTCPeerConnection(
+        configuration=ice_config
+    )
     webrtc_receiver.peer_connection = peer_connection
     
     @peer_connection.on("track")
@@ -107,7 +135,9 @@ async def candidate(sid, candidate):
 @sio.event
 async def viewer_offer(sid, data):
 
-    viewer_peer_connection = RTCPeerConnection()
+    viewer_peer_connection = RTCPeerConnection(
+        configuration=ice_config
+    )
 
     webrtc_receiver.viewer_peer_connection = (
         viewer_peer_connection
