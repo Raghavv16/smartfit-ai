@@ -104,6 +104,20 @@ function Dashboard() {
 				]
 			});
 
+			peer.onconnectionstatechange = () => {
+				console.log(
+					"VIEWER CONNECTION:",
+					peer.connectionState
+				);
+			};
+
+			peer.oniceconnectionstatechange = () => {
+				console.log(
+					"VIEWER ICE:",
+					peer.iceConnectionState
+				);
+			};
+
 			viewerPeerRef.current = peer;
 
 			peer.addTransceiver(
@@ -263,11 +277,11 @@ function Dashboard() {
 
 							<div>
 								<h2 className="text-xl font-bold text-white">
-									SmartFit AI — Live Workout
+									SmartFit — Live Workout
 								</h2>
 
 								<p className="text-sm text-slate-400">
-									Real-time AI pose analysis
+									Real-time analysis
 								</p>
 							</div>
 
