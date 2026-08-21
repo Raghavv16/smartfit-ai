@@ -8,25 +8,26 @@ class ProcessedVideoTrack(VideoStreamTrack):
 
     async def recv(self):
 
-        while True:
+        # Wait until the AI processor produces a frame
+        while webrtc_receiver.processed_frame is None:
 
-            with webrtc_receiver.processed_frame_lock:
-                frame = (
-                    None
-                    if webrtc_receiver.processed_frame is None
-                    else webrtc_receiver.processed_frame.copy()
-                )
+            await asyncio.sleep(0.005)
 
-            if frame is not None:
-                break
+        # Always grab the newest processed frame
+        with webrtc_receiver.processed_frame_lock:
 
-            await asyncio.sleep(0.01)
+            if webrtc_receiver.processed_frame is None:
+                return await self.recv()
 
+            frame = webrtc_receiver.processed_frame.copy()
+
+        # Convert OpenCV frame to WebRTC frame
         video_frame = VideoFrame.from_ndarray(
             frame,
             format="bgr24"
         )
 
+        # Give WebRTC proper realtime timestamps
         pts, time_base = await self.next_timestamp()
 
         video_frame.pts = pts
