@@ -73,7 +73,7 @@ def display_loop():
         
         frame = cv2.resize(
             frame,
-            (1280, 720)
+            (640, 360)
         )
         
         rgb_frame = cv2.cvtColor(
